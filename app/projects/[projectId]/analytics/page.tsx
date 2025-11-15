@@ -74,9 +74,9 @@ export default function AnalyticsPage() {
         return (
             <div className="space-y-6">
                 <div className="flex items-center justify-between">
-                    <h1 className="text-2xl font-bold">Project Analytics</h1>
+                    <h1 className="text-2xl font-bold text-foreground">Project Analytics</h1>
                 </div>
-                <div className="bg-white rounded-lg border p-8 text-center text-muted-foreground">
+                <div className="bg-card rounded-lg border border-border p-8 text-center text-muted-foreground">
                     Loading analytics...
                 </div>
             </div>
@@ -87,9 +87,9 @@ export default function AnalyticsPage() {
         return (
             <div className="space-y-6">
                 <div className="flex items-center justify-between">
-                    <h1 className="text-2xl font-bold">Project Analytics</h1>
+                    <h1 className="text-2xl font-bold text-foreground">Project Analytics</h1>
                 </div>
-                <div className="bg-white rounded-lg border p-8 text-center text-red-600">
+                <div className="bg-card rounded-lg border border-border p-8 text-center text-red-600 dark:text-red-400">
                     {error || "Failed to load analytics"}
                 </div>
             </div>
@@ -99,7 +99,7 @@ export default function AnalyticsPage() {
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-bold">Project Analytics</h1>
+                <h1 className="text-2xl font-bold text-foreground">Project Analytics</h1>
             </div>
 
             <ProjectSummary

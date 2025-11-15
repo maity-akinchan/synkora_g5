@@ -9,6 +9,7 @@ import {
     Palette,
     FileText,
     GitBranch,
+    FileSpreadsheet
 } from "lucide-react";
 
 interface ProjectTabsProps {
@@ -46,6 +47,12 @@ const tabs = [
         icon: GitBranch,
         shortcut: "5",
     },
+    {
+        name: "Sheets",
+        href: "sheet",
+        icon: FileSpreadsheet,
+        shortcut: "6"
+    }
 ];
 
 export function ProjectTabs({ projectId }: ProjectTabsProps) {

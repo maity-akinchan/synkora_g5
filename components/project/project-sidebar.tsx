@@ -1,11 +1,12 @@
 "use client";
 
 import { Project, Team, TeamMember, User } from "@prisma/client";
-import { Users, Crown, Edit, Eye, X } from "lucide-react";
+import { Users, Crown, Edit, Eye, X, Video } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { VideoMeetingModal } from "@/components/meeting/video-meeting-modal";
 
 type ProjectWithRelations = Project & {
     team?: (Team & {
@@ -62,6 +63,7 @@ function getInitials(name: string | null, email: string): string {
 export function ProjectSidebar({ project, isOpen = false, onClose }: ProjectSidebarProps) {
     const teamMembers = project.team?.members || [];
     const isPersonalProject = !project.team;
+    const [isMeetingModalOpen, setIsMeetingModalOpen] = useState(false);
 
     // Close sidebar on escape key
     useEffect(() => {
@@ -126,10 +128,24 @@ export function ProjectSidebar({ project, isOpen = false, onClose }: ProjectSide
                     </div>
                 </div>
 
-                <div className="flex-1 overflow-y-auto p-4">
-                    <h3 className="text-sm font-semibold mb-3">
-                        {isPersonalProject ? "Project Owner" : `Team Members (${teamMembers.length})`}
-                    </h3>
+                <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                    {/* Meeting Button */}
+                    <div>
+                        <Button
+                            onClick={() => setIsMeetingModalOpen(true)}
+                            className="w-full"
+                            variant="default"
+                        >
+                            <Video className="h-4 w-4 mr-2" />
+                            Start Meeting
+                        </Button>
+                    </div>
+
+                    <div className="border-t dark:border-gray-800 pt-4">
+                        <h3 className="text-sm font-semibold mb-3">
+                            {isPersonalProject ? "Project Owner" : `Team Members (${teamMembers.length})`}
+                        </h3>
+                    </div>
                     {isPersonalProject ? (
                         <div className="text-sm text-muted-foreground p-2">
                             This is your personal project
@@ -165,6 +181,14 @@ export function ProjectSidebar({ project, isOpen = false, onClose }: ProjectSide
                     )}
                 </div>
             </aside>
+
+            {/* Video Meeting Modal */}
+            <VideoMeetingModal
+                open={isMeetingModalOpen}
+                onClose={() => setIsMeetingModalOpen(false)}
+                projectId={project.id}
+                projectName={project.name}
+            />
         </>
     );
 }

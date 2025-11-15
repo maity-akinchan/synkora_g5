@@ -61,24 +61,31 @@ export function ActivityChart({ activities }: ActivityChartProps) {
     return (
         <div className="space-y-6">
             {/* Activity Timeline */}
-            <Card className="p-6">
-                <h3 className="text-lg font-semibold mb-4">Activity Timeline (Last 30 Days)</h3>
+            <Card className="p-6 dark:bg-gray-900 dark:border-gray-800">
+                <h3 className="text-lg font-semibold mb-4 text-foreground">Activity Timeline (Last 30 Days)</h3>
                 <ResponsiveContainer width="100%" height={300}>
                     <LineChart data={activityByDay}>
-                        <CartesianGrid strokeDasharray="3 3" />
+                        <CartesianGrid strokeDasharray="3 3" className="dark:stroke-gray-700" />
                         <XAxis
                             dataKey="date"
                             angle={-45}
                             textAnchor="end"
                             height={80}
+                            className="dark:fill-gray-400"
                         />
-                        <YAxis />
-                        <Tooltip />
+                        <YAxis className="dark:fill-gray-400" />
+                        <Tooltip
+                            contentStyle={{
+                                backgroundColor: 'hsl(var(--card))',
+                                border: '1px solid hsl(var(--border))',
+                                borderRadius: '0.5rem',
+                            }}
+                        />
                         <Legend />
                         <Line
                             type="monotone"
                             dataKey="activities"
-                            stroke="#3b82f6"
+                            stroke="#22c55e"
                             strokeWidth={2}
                             name="Activities"
                         />
@@ -87,26 +94,26 @@ export function ActivityChart({ activities }: ActivityChartProps) {
             </Card>
 
             {/* Activity by Type */}
-            <Card className="p-6">
-                <h3 className="text-lg font-semibold mb-4">Activity by Type</h3>
+            <Card className="p-6 dark:bg-gray-900 dark:border-gray-800">
+                <h3 className="text-lg font-semibold mb-4 text-foreground">Activity by Type</h3>
                 {activityTypeData.length > 0 ? (
                     <div className="space-y-3">
                         {activityTypeData.map((item) => (
                             <div key={item.type} className="flex items-center justify-between">
                                 <div className="flex items-center gap-3 flex-1">
-                                    <span className="text-sm font-medium min-w-[150px]">
+                                    <span className="text-sm font-medium min-w-[150px] text-foreground">
                                         {item.type}
                                     </span>
-                                    <div className="flex-1 bg-gray-200 rounded-full h-2">
+                                    <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                                         <div
-                                            className="bg-blue-600 h-2 rounded-full transition-all"
+                                            className="bg-[#22c55e] h-2 rounded-full transition-all"
                                             style={{
                                                 width: `${(item.count / activities.length) * 100}%`,
                                             }}
                                         />
                                     </div>
                                 </div>
-                                <span className="text-sm font-semibold ml-4">
+                                <span className="text-sm font-semibold ml-4 text-foreground">
                                     {item.count}
                                 </span>
                             </div>
@@ -120,17 +127,17 @@ export function ActivityChart({ activities }: ActivityChartProps) {
             </Card>
 
             {/* Recent Activities List */}
-            <Card className="p-6">
-                <h3 className="text-lg font-semibold mb-4">Recent Activities</h3>
+            <Card className="p-6 dark:bg-gray-900 dark:border-gray-800">
+                <h3 className="text-lg font-semibold mb-4 text-foreground">Recent Activities</h3>
                 {activities.length > 0 ? (
                     <div className="space-y-3 max-h-[400px] overflow-y-auto">
                         {activities.slice(0, 20).map((activity) => (
                             <div
                                 key={activity.id}
-                                className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
+                                className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                             >
                                 <div className="flex-1">
-                                    <p className="text-sm font-medium">
+                                    <p className="text-sm font-medium text-foreground">
                                         {activity.type.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase())}
                                     </p>
                                     {activity.data?.taskTitle && (

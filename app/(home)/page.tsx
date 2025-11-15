@@ -28,11 +28,11 @@ export default async function Home() {
 	}
 
 	return (
-        <main className="relative min-h-screen overflow-hidden bg-[#050505] text-white">
-            <Aurora colorStops={["#3A29FF", "#FF94B4", "#FF3232"]} blend={0.5} amplitude={1.0} speed={0.5} />
+		<main className="relative min-h-screen overflow-hidden bg-[#050505] text-white">
+			<Aurora colorStops={["#3A29FF", "#FF94B4", "#FF3232"]} blend={0.5} amplitude={1.0} speed={0.5} />
 
-            <Navigation />
-            <div className="relative z-10 flex min-h-screen flex-col pt-24">
+            <div className="relative z-10 flex min-h-screen flex-col">
+                <Navigation />
 				<Hero />
 				<div className="mx-auto w-full max-w-6xl px-6">
 					<ShowcaseCards />
@@ -40,9 +40,9 @@ export default async function Home() {
 				</div>
 			</div>
 
-            <section
+			<section
 				id="features"
-                className="relative mt-8 md:mt-[60px] border-t border-white/5 bg-gradient-to-b from-transparent via-white/5 to-transparent py-24"
+				className="relative mt-8 md:mt-[60px] border-t border-white/5 bg-gradient-to-b from-transparent via-white/5 to-transparent py-24"
 			>
 				<div className="pointer-events-none absolute inset-x-0 top-0 mx-auto h-40 max-w-4xl rounded-full bg-[#B8FF14]/10 blur-[120px]" />
 				<div className="relative mx-auto w-full max-w-6xl px-6 md:px-10">
@@ -63,20 +63,20 @@ export default async function Home() {
 					<div className="mt-12">
 						<BenefitsGrid />
 					</div>
-                    <FeatureShowcase />
+					<FeatureShowcase />
 				</div>
 			</section>
 
-            <div className="relative w-full">
-                <div className="absolute inset-0 -z-10 w-full h-full">
-                    <DarkVeil />
-                </div>
-                <div className="relative z-10">
-                    <HowItWorks />
-                    <FAQ />
-                    <Footer />
-                </div>
-            </div>
+			<div className="relative w-full">
+				<div className="absolute inset-0 -z-10 w-full h-full">
+					<DarkVeil />
+				</div>
+				<div className="relative z-10">
+					<HowItWorks />
+					<FAQ />
+					<Footer />
+				</div>
+			</div>
 		</main>
 	);
 }

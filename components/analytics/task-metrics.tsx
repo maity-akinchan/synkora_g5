@@ -82,8 +82,8 @@ export function TaskMetrics({
     return (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Tasks by Status */}
-            <Card className="p-6">
-                <h3 className="text-lg font-semibold mb-4">Tasks by Status</h3>
+            <Card className="p-6 dark:bg-gray-900 dark:border-gray-800">
+                <h3 className="text-lg font-semibold mb-4 text-foreground">Tasks by Status</h3>
                 <ResponsiveContainer width="100%" height={300}>
                     <PieChart>
                         <Pie
@@ -105,8 +105,8 @@ export function TaskMetrics({
             </Card>
 
             {/* Tasks by Priority */}
-            <Card className="p-6">
-                <h3 className="text-lg font-semibold mb-4">Tasks by Priority</h3>
+            <Card className="p-6 dark:bg-gray-900 dark:border-gray-800">
+                <h3 className="text-lg font-semibold mb-4 text-foreground">Tasks by Priority</h3>
                 <ResponsiveContainer width="100%" height={300}>
                     <PieChart>
                         <Pie
@@ -129,21 +129,28 @@ export function TaskMetrics({
 
             {/* Tasks by Assignee */}
             {assigneeData.length > 0 && (
-                <Card className="p-6 lg:col-span-2">
-                    <h3 className="text-lg font-semibold mb-4">Tasks by Assignee</h3>
+                <Card className="p-6 lg:col-span-2 dark:bg-gray-900 dark:border-gray-800">
+                    <h3 className="text-lg font-semibold mb-4 text-foreground">Tasks by Assignee</h3>
                     <ResponsiveContainer width="100%" height={300}>
                         <BarChart data={assigneeData}>
-                            <CartesianGrid strokeDasharray="3 3" />
+                            <CartesianGrid strokeDasharray="3 3" className="dark:stroke-gray-700" />
                             <XAxis
                                 dataKey="name"
                                 angle={-45}
                                 textAnchor="end"
                                 height={100}
+                                className="dark:fill-gray-400"
                             />
-                            <YAxis />
-                            <Tooltip />
+                            <YAxis className="dark:fill-gray-400" />
+                            <Tooltip
+                                contentStyle={{
+                                    backgroundColor: 'hsl(var(--card))',
+                                    border: '1px solid hsl(var(--border))',
+                                    borderRadius: '0.5rem',
+                                }}
+                            />
                             <Legend />
-                            <Bar dataKey="tasks" fill="#3b82f6" name="Tasks" />
+                            <Bar dataKey="tasks" fill="#22c55e" name="Tasks" />
                         </BarChart>
                     </ResponsiveContainer>
                 </Card>

@@ -7,7 +7,11 @@ import { prisma } from "@/lib/prisma";
 async function getUserProjectRole(userId: string, projectId: string) {
     const project = await prisma.project.findUnique({
         where: { id: projectId },
-        include: {
+        select: {
+            id: true,
+            name: true,
+            createdById: true,
+            teamId: true,
             team: {
                 include: {
                     members: {
@@ -20,7 +24,24 @@ async function getUserProjectRole(userId: string, projectId: string) {
         },
     });
 
-    if ( !project || !project.team || project.team.members.length === 0) {
+    if (!project) {
+        return null;
+    }
+
+    // Check if it's a personal project (no team)
+    if (!project.team) {
+        // For personal projects, check if the user is the creator
+        if (project.createdById === userId) {
+            return {
+                project,
+                role: 'OWNER',
+            };
+        }
+        return null;
+    }
+
+    // For team projects, check if user is a member
+    if (project.team.members.length === 0) {
         return null;
     }
 
