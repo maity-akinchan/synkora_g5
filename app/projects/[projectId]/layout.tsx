@@ -17,8 +17,8 @@ type ProjectWithRelations = Project & {
 };
 
 export default function ProjectLayout({
-    children,
-}: {
+                                          children,
+                                      }: {
     children: React.ReactNode;
 }) {
     const params = useParams();
@@ -88,7 +88,7 @@ export default function ProjectLayout({
     }
 
     return (
-        <div className="flex min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-gray-950 dark:to-black">
+        <div className="flex h-screen overflow-hidden bg-gradient-to-br from-slate-50 to-slate-100 dark:from-gray-950 dark:to-black">
             {/* Project Sidebar with Team Members - Desktop */}
             <ProjectSidebar
                 project={project}
@@ -97,20 +97,26 @@ export default function ProjectLayout({
             />
 
             {/* Main Content Area */}
-            <div className="flex-1 flex flex-col min-w-0">
-                {/* Project Header */}
-                <ProjectHeader
-                    project={project}
-                    onProjectUpdate={fetchProject}
-                    onMenuClick={() => setIsSidebarOpen(true)}
-                />
+            <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
+                {/* Project Header - Fixed height */}
+                <div className="flex-shrink-0">
+                    <ProjectHeader
+                        project={project}
+                        onProjectUpdate={fetchProject}
+                        onMenuClick={() => setIsSidebarOpen(true)}
+                    />
+                </div>
 
-                {/* Project Tabs Navigation */}
-                <ProjectTabs projectId={projectId} />
+                {/* Project Tabs Navigation - Fixed height */}
+                <div className="flex-shrink-0">
+                    <ProjectTabs projectId={projectId} />
+                </div>
 
-                {/* Page Content */}
-                <main className="flex-1 p-4 md:p-6">
-                    {children}
+                {/* Page Content - Takes remaining space with scroll */}
+                <main className="flex-1 overflow-hidden">
+                    <div className="h-full p-4 md:p-6 overflow-auto">
+                        {children}
+                    </div>
                 </main>
             </div>
         </div>
