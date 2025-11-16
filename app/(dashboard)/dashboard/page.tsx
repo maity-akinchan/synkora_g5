@@ -107,11 +107,21 @@ export default function DashboardPage() {
     return (
         <div className="p-4 md:p-6 lg:p-8">
             <div className="max-w-7xl mx-auto">
-                <div className="mb-6 md:mb-8">
-                    <h1 className="text-2xl md:text-3xl font-bold">Dashboard</h1>
-                    <p className="text-muted-foreground mt-1 text-sm md:text-base">
-                        Welcome back, {user?.name || user?.email}
-                    </p>
+                <div className="mb-6 md:mb-8 flex items-start justify-between">
+                    <div>
+                        <h1 className="text-2xl md:text-3xl font-bold">Dashboard</h1>
+                        <p className="text-muted-foreground mt-1 text-sm md:text-base">
+                            Welcome back, {user?.name || user?.email}
+                        </p>
+                    </div>
+                    <div className="pt-1">
+                        <a
+                            href="/dashboard/account"
+                            className="text-sm text-muted-foreground hover:underline"
+                        >
+                            Account Settings
+                        </a>
+                    </div>
                 </div>
 
                 {error && (
