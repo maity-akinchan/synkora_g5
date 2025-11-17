@@ -17,6 +17,7 @@ export async function GET() {
                 name: true,
                 image: true,
                 createdAt: true,
+                defaultTeamId: true,
             },
         });
 

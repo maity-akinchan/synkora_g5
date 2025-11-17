@@ -10,7 +10,7 @@ export default function FeaturesIntro() {
 				delay={150}
 				animateBy="words"
 				direction="top"
-				className="mt-6 text-3xl font-semibold leading-tight text-white md:text-5xl justify-center"
+				className="mt-0 text-3xl font-semibold leading-tight text-white md:text-5xl justify-center"
 			/>
 			<p className="mt-6 text-base text-white/60 md:text-lg">
 				You need a unified space to brainstorm, plan, and visualize — but juggling tools slows
@@ -26,13 +26,8 @@ export default function FeaturesIntro() {
 			<br />
 			<br />
 			<br />
-			<br />
-			<br />
-			<br />
-			<br />
-			<br />
-			<br />
-			<br />
+			
+			
 		</div>
 		
 	);

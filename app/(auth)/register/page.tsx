@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import DarkVeil from "@/components/home/DarkVeil";
+import { useTheme } from "@/components/providers/theme-provider";
 import { z } from "zod";
 
 const registerSchema = z.object({
@@ -22,6 +24,7 @@ const registerSchema = z.object({
 
 export default function RegisterPage() {
     const router = useRouter();
+    const { theme } = useTheme();
     const [formData, setFormData] = useState({
         name: "",
         email: "",
@@ -30,6 +33,26 @@ export default function RegisterPage() {
     });
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [isLoading, setIsLoading] = useState(false);
+    const [isDarkMode, setIsDarkMode] = useState(true);
+
+    useEffect(() => {
+        const checkTheme = () => {
+            const root = document.documentElement;
+            const isDark = root.classList.contains("dark");
+            setIsDarkMode(isDark);
+        };
+        
+        checkTheme();
+        
+        // Watch for theme changes
+        const observer = new MutationObserver(checkTheme);
+        observer.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ["class"],
+        });
+        
+        return () => observer.disconnect();
+    }, [theme]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -123,10 +146,37 @@ export default function RegisterPage() {
     };
 
     return (
-        <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 p-4">
-            <Card className="w-full max-w-md">
+        <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 dark:from-gray-950 dark:to-black p-4 relative overflow-hidden">
+            <div 
+                className="fixed inset-0 w-full h-full z-0"
+                style={{ 
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                }}
+            >
+                <div 
+                    className="absolute inset-0 w-full h-full transition-opacity duration-300"
+                    style={{ 
+                        opacity: isDarkMode ? 1 : 0.25 
+                    }}
+                >
+                    <DarkVeil />
+                </div>
+                {!isDarkMode && (
+                    <div 
+                        className="absolute inset-0 bg-gradient-to-br from-white/70 via-slate-50/50 to-white/70 pointer-events-none"
+                        style={{ zIndex: 1 }}
+                    />
+                )}
+            </div>
+            <Card className="w-full max-w-md glass dark:glass relative z-10">
                 <CardHeader className="space-y-1">
-                    <CardTitle className="text-2xl font-bold">Create an account</CardTitle>
+                    <CardTitle className="text-2xl font-bold bg-gradient-to-r from-lime-400 to-green-500 bg-clip-text text-transparent dark:neon-text">
+                        Create an account
+                    </CardTitle>
                     <CardDescription>
                         Enter your information to get started
                     </CardDescription>

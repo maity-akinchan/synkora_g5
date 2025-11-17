@@ -47,6 +47,7 @@ export default function TeamDetailPage() {
     const [activeTab, setActiveTab] = useState<"members" | "projects" | "settings">("members");
     const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
     const [showInviteModal, setShowInviteModal] = useState(false);
+    const [userDefaultTeamId, setUserDefaultTeamId] = useState<string | null>(null);
 
     const fetchTeam = async () => {
         try {
@@ -61,6 +62,16 @@ export default function TeamDetailPage() {
                     const session = await sessionResponse.json();
                     const member = data.members.find((m: TeamMember) => m.user.id === session.user?.id);
                     setCurrentUserRole(member?.role || null);
+                        // fetch user's default team id to allow UI state (e.g., disabling Set As Default button)
+                        try {
+                            const userRes = await fetch(`/api/user`);
+                            if (userRes.ok) {
+                                const userData = await userRes.json();
+                                setUserDefaultTeamId(userData.defaultTeamId || null);
+                            }
+                        } catch (err) {
+                            console.error("Failed to fetch user data", err);
+                        }
                 }
             } else if (response.status === 404) {
                 router.push("/teams");
@@ -199,6 +210,7 @@ export default function TeamDetailPage() {
                     team={team}
                     onTeamUpdated={handleTeamUpdated}
                     onTeamDeleted={handleTeamDeleted}
+                    userDefaultTeamId={userDefaultTeamId}
                 />
             )}
 

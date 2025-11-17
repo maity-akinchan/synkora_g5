@@ -31,8 +31,8 @@ export default async function Home() {
 		<main className="relative min-h-screen overflow-hidden bg-[#050505] text-white">
 			<Aurora colorStops={["#3A29FF", "#FF94B4", "#FF3232"]} blend={0.5} amplitude={1.0} speed={0.5} />
 
-			<div className="relative z-10 flex min-h-screen flex-col">
-				<Navigation />
+            <div className="relative z-10 flex min-h-screen flex-col">
+                <Navigation />
 				<Hero />
 				<div className="mx-auto w-full max-w-6xl px-6">
 					<ShowcaseCards />

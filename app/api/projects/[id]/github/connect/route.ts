@@ -22,26 +22,21 @@ export async function POST(
         const body = await request.json();
         const { githubRepoId, owner, name, fullName, accessToken } = body;
 
-        // Validate required fields
-        if (!githubRepoId || !owner || !name || !fullName || !accessToken) {
+        // Validate required fields (accessToken may be omitted; we'll try to fallback to stored Account)
+        if (!githubRepoId || !owner || !name || !fullName) {
             return NextResponse.json(
                 { error: "Missing required fields" },
                 { status: 400 }
             );
         }
 
-        // Check if user has access to the project
-        const project = await prisma.project.findFirst({
-            where: {
-                id: projectId,
+        // Load project and membership info separately so we can return clearer errors
+        const project = await prisma.project.findUnique({
+            where: { id: projectId },
+            include: {
                 team: {
-                    members: {
-                        some: {
-                            userId: session.user.id,
-                            role: {
-                                in: ["OWNER", "EDITOR"],
-                            },
-                        },
+                    include: {
+                        members: true,
                     },
                 },
             },
@@ -49,13 +44,49 @@ export async function POST(
 
         if (!project) {
             return NextResponse.json(
-                { error: "Project not found or insufficient permissions" },
+                { error: "Project not found" },
                 { status: 404 }
             );
         }
 
+        // Determine user's role on the project (if any)
+        const team = project.team;
+        const member = team?.members?.find((m: any) => m.userId === session.user.id) || null;
+        const userRole = member ? member.role : null;
+
+        // Only OWNER or EDITOR can connect a GitHub repo
+        if (!member || !userRole || !["OWNER", "EDITOR"].includes(userRole)) {
+            console.warn(`GitHub connect permission denied: user=${session.user.id} role=${userRole} project=${projectId}`);
+            return NextResponse.json(
+                { error: "Insufficient permissions to connect repository", role: userRole || "none" },
+                { status: 403 }
+            );
+        }
+
+        // If accessToken not provided in body, try to find a linked GitHub account for the user
+        let tokenToStore = accessToken as string | undefined;
+        if (!tokenToStore) {
+            try {
+                const account = await prisma.account.findFirst({
+                    where: { userId: session.user.id, provider: "github" },
+                });
+                if (account?.access_token) {
+                    tokenToStore = account.access_token;
+                }
+            } catch (err) {
+                console.error("Error reading Account for fallback token:", err);
+            }
+        }
+
+        if (!tokenToStore) {
+            return NextResponse.json(
+                { error: "Missing GitHub access token; please link your GitHub account and try again." },
+                { status: 400 }
+            );
+        }
+
         // Encrypt the access token before storing
-        const encryptedToken = encrypt(accessToken);
+        const encryptedToken = encrypt(tokenToStore);
 
         // Create or update GitHub repository connection
         const gitRepo = await prisma.gitRepository.upsert({

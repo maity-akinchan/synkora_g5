@@ -40,19 +40,20 @@ const faqs = [
 
 export default function FAQ() {
   return (
-    <section id="faq" className="py-24 bg-surface">
-      <div className="container mx-auto px-6">
-        {/* Section Header */}
-        <div className="text-center mb-16 opacity-0 scroll-reveal">
-          <div className="inline-flex items-center px-4 py-2 bg-primary/20 border border-primary/30 rounded-full text-sm text-primary mb-6">
-            FAQs
-          </div>
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">
-            Everything you need to know about{" "}
-            <br className="hidden md:block" />
-            <span className="text-primary">Synkora</span>
-          </h2>
-        </div>
+    <section id="faq" className="py-24 bg-neutral-900">
+  <div className="container mx-auto px-6">
+
+    <div className="text-center mb-16 scroll-reveal opacity-100">
+      <div className="inline-flex items-center px-4 py-2 bg-primary/20 border border-primary/30 rounded-full text-sm text-primary mb-6">
+        FAQs
+      </div>
+
+      <h2 className="text-4xl md:text-5xl font-bold mb-6">
+        Everything you need to know about <br />
+        <span className="text-primary">Synkora</span>
+      </h2>
+    </div>
+
  
         {/* FAQ Accordion */}
         <div className="max-w-3xl mx-auto mb-20">

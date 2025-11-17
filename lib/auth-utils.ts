@@ -110,6 +110,42 @@ export async function requireProjectRole(
 }
 
 /**
+ * Ensure a default personal team exists for the given user.
+ * If the user is already a member of any team, returns the first teamId found.
+ * Otherwise creates a new personal team and adds the user as OWNER.
+ */
+export async function ensureDefaultTeam(userId: string) {
+    // Check existing membership
+    const membership = await prisma.teamMember.findFirst({
+        where: { userId },
+    });
+
+    if (membership) {
+        return membership.teamId;
+    }
+
+    // Create a personal team
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    const teamName = user?.name
+        ? `${user.name}'s Team`
+        : `${user?.email || userId}'s Team`;
+
+    const team = await prisma.team.create({
+        data: {
+            name: teamName,
+            members: {
+                create: {
+                    userId,
+                    role: "OWNER",
+                },
+            },
+        },
+    });
+
+    return team.id;
+}
+
+/**
  * Check if user can edit (Owner or Editor role)
  */
 export function canEdit(role: Role): boolean {

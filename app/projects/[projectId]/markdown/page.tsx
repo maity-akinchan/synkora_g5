@@ -155,8 +155,14 @@ export default function MarkdownPage() {
             });
 
             if (response.ok) {
-                // Update file list to reflect new updatedAt time
-                fetchFiles();
+                const updatedFile = await response.json();
+                setFiles(prevFiles =>
+                    prevFiles.map(file =>
+                        file.id === selectedFileId
+                            ? {...file, updatedAt: updatedFile.updatedAt}
+                            : file
+                    )
+                );
             }
         } catch (error) {
             console.error("Error saving content:", error);
@@ -219,7 +225,7 @@ export default function MarkdownPage() {
     }
 
     return (
-        <div className="h-[calc(100vh-12rem)] flex bg-white rounded-lg shadow-lg overflow-hidden">
+        <div className="h-[calc(100vh-12rem)] flex bg-white dark:bg-gray-950 rounded-lg shadow-lg overflow-hidden">
             {/* File List Sidebar */}
             <MarkdownFileList
                 files={files}
@@ -233,11 +239,11 @@ export default function MarkdownPage() {
             {selectedFileId ? (
                 <div className="flex-1 flex flex-col">
                     {/* Toolbar */}
-                    <div className="flex items-center justify-between border-b">
+                    <div className="flex items-center justify-between border-b dark:border-gray-800">
                         <MarkdownToolbar onInsert={handleToolbarInsert} />
                         <div className="flex items-center gap-2 px-4">
                             {isSaving && (
-                                <span className="text-xs text-slate-500">Saving...</span>
+                                <span className="text-xs text-slate-500 dark:text-slate-400">Saving...</span>
                             )}
                             <Button
                                 variant="ghost"
@@ -255,7 +261,7 @@ export default function MarkdownPage() {
                         <div className="flex-1 flex overflow-hidden">
                             <div
                                 className={`${showPreview ? "w-1/2" : "w-full"
-                                    } border-r overflow-hidden`}
+                                } border-r dark:border-gray-800 overflow-hidden`}
                             >
                                 <MarkdownEditor
                                     value={content}
@@ -273,7 +279,7 @@ export default function MarkdownPage() {
                     </div>
                 </div>
             ) : (
-                <div className="flex-1 flex items-center justify-center text-slate-500">
+                <div className="flex-1 flex items-center justify-center text-slate-500 dark:text-slate-400">
                     <div className="text-center">
                         <p className="text-lg mb-2">No document selected</p>
                         <p className="text-sm">Create a new document to get started</p>

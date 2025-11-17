@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { Twitter, Linkedin, Github } from "lucide-react";
 import GlassIcons from "./GlassIcons";
 
@@ -100,12 +101,12 @@ export default function Footer() {
 				<div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center">
 					<p className="text-white/60">© 2024 Synkora. All rights reserved.</p>
 					<div className="flex space-x-6 mt-4 md:mt-0">
-						<a href="/privacy" className="text-white/60 hover:text-[#B8FF14] transition-colors text-sm">
+						<Link href="/privacy" className="text-white/60 hover:text-[#B8FF14] transition-colors text-sm">
 							Privacy Policy
-						</a>
-						<a href="/terms" className="text-white/60 hover:text-[#B8FF14] transition-colors text-sm">
+						</Link>
+						<Link href="/terms" className="text-white/60 hover:text-[#B8FF14] transition-colors text-sm">
 							Terms of Service
-						</a>
+						</Link>
 					</div>
 				</div>
 			</div>

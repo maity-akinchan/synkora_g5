@@ -1,8 +1,9 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { Package, Shuffle, Fingerprint, Star } from "lucide-react";
+import { Package, Shuffle, Fingerprint, Star, Play } from "lucide-react";
 import { useRef, useState, MouseEvent, useEffect } from "react";
+import Image from "next/image";
 import BlurText from "@/components/home/BlurText";
 
 const steps = [
@@ -150,15 +151,9 @@ const Testimonials = () => {
 
 	return (
 		<div className="mt-20" ref={ref}>
-			<br />
-			<br />
-			<br />
-			<br />
-			<br />
-			<br />
-			<br />
-			<br />
-			<br />
+			
+			
+			
 			{/* Top customer story */}
 			<div className="grid grid-cols-1 items-center gap-10 md:grid-cols-2">
 				<div>
@@ -170,8 +165,24 @@ const Testimonials = () => {
 					</p>
 					<div className="mt-6 text-sm text-white/60">Read the story →</div>
 				</div>
-				<div className="relative aspect-video overflow-hidden rounded-2xl border border-white/10 bg-white/5">
-					<div className="absolute inset-0 grid place-items-center text-white/60">Video placeholder</div>
+				<div className="relative aspect-video overflow-hidden rounded-2xl border border-white/10 bg-white/5 group cursor-pointer">
+					<Image
+						src="/images/testimonial-video.jpg"
+						alt="Johnny Seedapple - Technical Lead/Product Manager"
+						fill
+						className="object-cover"
+						priority
+					/>
+					{/* Play button overlay */}
+					<div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/20 transition-colors">
+						<div className="flex flex-col items-center gap-2">
+							<div className="w-20 h-20 rounded-full bg-white/90 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+								<Play className="w-8 h-8 text-black ml-1" fill="currentColor" />
+							</div>
+							<div className="text-white text-sm font-medium mt-2">Johnny Seedapple</div>
+							<div className="text-white/80 text-xs">Technical Lead/Product Manager</div>
+						</div>
+					</div>
 				</div>
 			</div>
 

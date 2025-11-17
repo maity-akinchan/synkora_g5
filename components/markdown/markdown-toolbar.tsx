@@ -31,7 +31,7 @@ export function MarkdownToolbar({ onInsert }: MarkdownToolbarProps) {
     ];
 
     return (
-        <div className="flex items-center gap-1 p-2 border-b bg-slate-50">
+        <div className="flex items-center gap-1 p-2 border-b dark:border-gray-800 bg-slate-50 dark:bg-gray-900">
             {tools.map((tool) => (
                 <Button
                     key={tool.label}

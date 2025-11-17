@@ -19,7 +19,10 @@ const getReconnectionDelay = (attempt: number): number => {
  */
 export const getSocket = (token?: string): Socket => {
     if (!socket) {
-        const url = process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3000";
+        // Use standalone WebSocket server URL if provided, otherwise default to same origin
+        const url = process.env.NEXT_PUBLIC_WEBSOCKET_URL || window.location.origin;
+
+        console.log(`[Socket] Connecting to WebSocket server: ${url}`);
 
         socket = io(url, {
             autoConnect: false, // We'll connect manually after setting auth
@@ -84,6 +87,11 @@ export const getSocket = (token?: string): Socket => {
 
         socket.on("connected", (data) => {
             console.log("Connection confirmed:", data);
+        });
+
+        // Handle server shutdown gracefully
+        socket.on("server:shutdown", (data) => {
+            console.warn("Server shutting down:", data.message);
         });
     }
 

@@ -1,9 +1,13 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
+import {useParams} from "next/navigation";
 import Spreadsheet from "react-spreadsheet";
 
 export default function SpreadsheetPage() {
+    const params = useParams();
+    const projectId = params.projectId as string;
+
     const numRows = 50;
     const numCols = 50;
 
@@ -25,7 +29,110 @@ export default function SpreadsheetPage() {
     const [clipboard, setClipboard] = useState<any>(null);
     const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0 });
     const [mergedCells, setMergedCells] = useState<any[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
     const spreadsheetRef = useRef<HTMLDivElement>(null);
+    const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+    // Load saved spreadsheet data on mount
+    useEffect(() => {
+        const loadSpreadsheet = async () => {
+            try {
+                setIsLoading(true);
+                const response = await fetch(`/api/projects/${projectId}/spreadsheet`);
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.data && result.data.cells) {
+                        setData(result.data.cells);
+                    }
+                    if (result.data && result.data.mergedCells) {
+                        setMergedCells(result.data.mergedCells);
+                    }
+                }
+            } catch (error) {
+                console.error("Error loading spreadsheet:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        loadSpreadsheet();
+    }, [projectId]);
+
+    // Auto-save function with debounce
+    const saveSpreadsheet = useCallback(async () => {
+        try {
+            setSaveStatus('saving');
+            const response = await fetch(`/api/projects/${projectId}/spreadsheet`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    data: {
+                        cells: data,
+                        mergedCells: mergedCells,
+                    }
+                }),
+            });
+
+            if (response.ok) {
+                setSaveStatus('saved');
+                setTimeout(() => setSaveStatus('idle'), 2000);
+            } else {
+                setSaveStatus('error');
+                setTimeout(() => setSaveStatus('idle'), 3000);
+            }
+        } catch (error) {
+            console.error("Error saving spreadsheet:", error);
+            setSaveStatus('error');
+            setTimeout(() => setSaveStatus('idle'), 3000);
+        }
+    }, [data, mergedCells, projectId]);
+
+    // Trigger auto-save when data changes
+    useEffect(() => {
+        if (isLoading) return; // Don't save on initial load
+
+        if (saveTimeoutRef.current) {
+            clearTimeout(saveTimeoutRef.current);
+        }
+
+        saveTimeoutRef.current = setTimeout(() => {
+            saveSpreadsheet();
+        }, 2000); // Save 2 seconds after last change
+
+        return () => {
+            if (saveTimeoutRef.current) {
+                clearTimeout(saveTimeoutRef.current);
+            }
+        };
+    }, [data, mergedCells, saveSpreadsheet, isLoading]);
+
+    // Save on blur, visibility change, and beforeunload
+    useEffect(() => {
+        const saveNow = () => {
+            if (saveTimeoutRef.current) {
+                clearTimeout(saveTimeoutRef.current);
+                saveTimeoutRef.current = null;
+            }
+            void saveSpreadsheet();
+        };
+
+        const onVisibility = () => {
+            if (document.hidden) saveNow();
+        };
+
+        const onBlur = () => saveNow();
+
+        window.addEventListener('blur', onBlur);
+        document.addEventListener('visibilitychange', onVisibility);
+        window.addEventListener('beforeunload', saveNow);
+
+        return () => {
+            window.removeEventListener('blur', onBlur);
+            document.removeEventListener('visibilitychange', onVisibility);
+            window.removeEventListener('beforeunload', saveNow);
+        };
+    }, [saveSpreadsheet]);
 
     // Normalize selection to ensure start and end exist
     const normalizeSelection = (selection: any) => {
@@ -136,7 +243,7 @@ export default function SpreadsheetPage() {
             rowSpan: rowSpan,
             colSpan: colSpan,
             className: "merged-cell"
-        };
+        } as any;
 
         for (let row = start.row; row <= end.row; row++) {
             for (let col = start.column; col <= end.column; col++) {
@@ -145,7 +252,7 @@ export default function SpreadsheetPage() {
                         value: "",
                         disabled: true,
                         className: "merged-hidden-cell"
-                    };
+                    } as any;
                 }
             }
         }
@@ -182,10 +289,10 @@ export default function SpreadsheetPage() {
                         ? data[row][col].value
                         : "",
                     className: ""
-                };
-                delete newData[row][col].rowSpan;
-                delete newData[row][col].colSpan;
-                delete newData[row][col].disabled;
+                } as any;
+                delete (newData[row][col] as any).rowSpan;
+                delete (newData[row][col] as any).colSpan;
+                delete (newData[row][col] as any).disabled;
             }
         }
 
@@ -205,7 +312,7 @@ export default function SpreadsheetPage() {
 
         for (let row = start.row; row <= end.row; row++) {
             for (let col = start.column; col <= end.column; col++) {
-                if (!newData[row][col]?.disabled) {
+                if (!(newData[row][col] as any)?.disabled) {
                     newData[row][col] = { value: "" };
                 }
             }
@@ -270,6 +377,7 @@ export default function SpreadsheetPage() {
             height: '100%',
             fontFamily: 'Arial, sans-serif',
             overflow: 'hidden',
+            position: 'relative' as const,
         },
         ribbonMenu: {
             background: 'var(--ribbon-bg, #f3f3f3)',
@@ -280,6 +388,7 @@ export default function SpreadsheetPage() {
         ribbonTab: {
             display: 'flex',
             gap: '20px',
+            alignItems: 'center',
         },
         ribbonGroup: {
             display: 'flex',
@@ -344,7 +453,26 @@ export default function SpreadsheetPage() {
             background: 'var(--spreadsheet-bg, white)',
             minHeight: 0,
         },
+        saveStatus: {
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '8px 12px',
+            borderRadius: '4px',
+            fontSize: '13px',
+            fontWeight: '500' as const,
+        },
     };
+
+    if (isLoading) {
+        return (
+            <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%'}}>
+                <div style={{textAlign: 'center'}}>
+                    <div style={{fontSize: '16px', color: 'var(--text-color, #666)'}}>Loading spreadsheet...</div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <>
@@ -356,8 +484,10 @@ export default function SpreadsheetPage() {
                     --button-bg: white;
                     --button-border: #ccc;
                     --button-text: #1f2937;
+                    --button-hover: #e8e8e8;
                     --context-bg: white;
                     --context-border: #ccc;
+                    --context-hover: #f0f0f0;
                     --text-color: #1f2937;
                     --separator-bg: #ddd;
                     --spreadsheet-bg: white;
@@ -370,8 +500,10 @@ export default function SpreadsheetPage() {
                     --button-bg: #374151;
                     --button-border: #4b5563;
                     --button-text: #f9fafb;
+                    --button-hover: #4b5563;
                     --context-bg: #1f2937;
                     --context-border: #374151;
+                    --context-hover: #374151;
                     --text-color: #f9fafb;
                     --separator-bg: #374151;
                     --spreadsheet-bg: #111827;
@@ -486,7 +618,7 @@ export default function SpreadsheetPage() {
                             </div>
                         </div>
 
-                        <div style={{ ...styles.ribbonGroup, borderRight: 'none' }}>
+                        <div style={styles.ribbonGroup}>
                             <label style={styles.ribbonLabel}>Cells</label>
                             <div style={styles.ribbonButtons}>
                                 <button
@@ -522,6 +654,52 @@ export default function SpreadsheetPage() {
                                     🗑️ Clear
                                 </button>
                             </div>
+                        </div>
+
+                        {/* Save Status Indicator */}
+                        <div style={{marginLeft: 'auto', display: 'flex', alignItems: 'center'}}>
+                            {saveStatus === 'saving' && (
+                                <div style={{
+                                    ...styles.saveStatus,
+                                    background: '#fef3c7',
+                                    color: '#92400e',
+                                }}>
+                                    <svg style={{width: '16px', height: '16px', animation: 'spin 1s linear infinite'}}
+                                         viewBox="0 0 24 24">
+                                        <circle style={{opacity: 0.25}} cx="12" cy="12" r="10" stroke="currentColor"
+                                                strokeWidth="4" fill="none"></circle>
+                                        <path style={{opacity: 0.75}} fill="currentColor"
+                                              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                                    </svg>
+                                    <span>Saving...</span>
+                                </div>
+                            )}
+                            {saveStatus === 'saved' && (
+                                <div style={{
+                                    ...styles.saveStatus,
+                                    background: '#d1fae5',
+                                    color: '#065f46',
+                                }}>
+                                    <svg style={{width: '16px', height: '16px'}} viewBox="0 0 24 24" fill="none"
+                                         stroke="currentColor" strokeWidth="2">
+                                        <path d="M20 6L9 17l-5-5"/>
+                                    </svg>
+                                    <span>Saved</span>
+                                </div>
+                            )}
+                            {saveStatus === 'error' && (
+                                <div style={{
+                                    ...styles.saveStatus,
+                                    background: '#fee2e2',
+                                    color: '#991b1b',
+                                }}>
+                                    <svg style={{width: '16px', height: '16px'}} viewBox="0 0 24 24" fill="none"
+                                         stroke="currentColor" strokeWidth="2">
+                                        <path d="M6 18L18 6M6 6l12 12"/>
+                                    </svg>
+                                    <span>Save failed</span>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -625,7 +803,7 @@ export default function SpreadsheetPage() {
                 >
                     <Spreadsheet
                         data={data}
-                        onChange={setData}
+                        onChange={(newData) => setData(newData as any)}
                         onSelect={handleSelect}
                         columnLabels={Array.from({ length: numCols }, (_, i) =>
                             String.fromCharCode(65 + (i % 26))
@@ -633,6 +811,17 @@ export default function SpreadsheetPage() {
                     />
                 </div>
             </div>
+
+            <style jsx>{`
+                @keyframes spin {
+                    from {
+                        transform: rotate(0deg);
+                    }
+                    to {
+                        transform: rotate(360deg);
+                    }
+                }
+            `}</style>
         </>
     );
 }

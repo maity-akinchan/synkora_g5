@@ -17,7 +17,7 @@ export default function KristinWatsonPage() {
 				<div className="grid md:grid-cols-2 gap-12 items-center">
 					<div className="relative">
 						<Image
-							src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop"
+							src="/images/team/kristin-watson.jpg"
 							alt="Kristin Watson"
 							width={400}
 							height={400}

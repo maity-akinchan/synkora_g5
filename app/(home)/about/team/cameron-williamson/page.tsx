@@ -17,7 +17,7 @@ export default function CameronWilliamsonPage() {
 				<div className="grid md:grid-cols-2 gap-12 items-center">
 					<div className="relative">
 						<Image
-							src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop"
+							src="/images/team/cameron-williamson.jpg"
 							alt="Cameron Williamson"
 							width={400}
 							height={400}

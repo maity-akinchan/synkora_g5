@@ -3,6 +3,7 @@
 import { ReactNode, useState } from "react";
 import { Sidebar } from "./sidebar";
 import { TopBar } from "./topbar";
+import { Toaster } from "@/components/ui/toaster";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface MainLayoutProps {
@@ -58,6 +59,7 @@ export function MainLayout({ children, user, showSearch = true }: MainLayoutProp
                 <main className="flex-1">
                     {children}
                 </main>
+                <Toaster />
             </div>
         </div>
     );

@@ -17,7 +17,7 @@ export default function DarleneRobertsonPage() {
 				<div className="grid md:grid-cols-2 gap-12 items-center">
 					<div className="relative">
 						<Image
-							src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop"
+							src="/images/team/darlene-robertson.jpg"
 							alt="Darlene Robertson"
 							width={400}
 							height={400}

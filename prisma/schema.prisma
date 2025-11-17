@@ -15,36 +15,39 @@ model User {
   id            String    @id @default(cuid())
   email         String    @unique
   name          String?
-  password      String?   // Hashed, null for OAuth users
+  password      String? // Hashed, null for OAuth users
   image         String?
   emailVerified DateTime?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
-  
+
   accounts      Account[]
   sessions      Session[]
   teamMembers   TeamMember[]
-  tasks         Task[]     @relation("AssignedTasks")
-  createdTasks  Task[]     @relation("CreatedTasks")
+  defaultTeamId String?
+  defaultTeam   Team?        @relation(fields: [defaultTeamId], references: [id])
+  tasks         Task[]       @relation("AssignedTasks")
+  createdTasks  Task[]       @relation("CreatedTasks")
   aiMessages    AIMessage[]
 }
 
 model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String? @db.Text
-  session_state     String?
-  
+  id                       String  @id @default(cuid())
+  userId                   String
+  type                     String
+  provider                 String
+  providerAccountId        String
+  refresh_token            String? @db.Text
+  refresh_token_expires_in Int?
+  access_token             String? @db.Text
+  expires_at               Int?
+  token_type               String?
+  scope                    String?
+  id_token                 String? @db.Text
+  session_state            String?
+
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   @@unique([provider, providerAccountId])
 }
 
@@ -62,36 +65,39 @@ model Team {
   name      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
   members     TeamMember[]
   projects    Project[]
   invitations TeamInvitation[]
+
+  users User[]
 }
 
 model TeamMember {
-  id     String @id @default(cuid())
-  teamId String
-  userId String
-  role   Role   @default(VIEWER)
-  
+  id        String   @id @default(cuid())
+  teamId    String
+  userId    String
+  role      Role     @default(EDITOR)
+  createdAt DateTime @default(now())
+
   team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   @@unique([teamId, userId])
 }
 
 model TeamInvitation {
-  id        String            @id @default(cuid())
+  id        String           @id @default(cuid())
   teamId    String
   email     String
-  role      Role              @default(EDITOR)
-  status    InvitationStatus  @default(PENDING)
+  role      Role             @default(EDITOR)
+  status    InvitationStatus @default(PENDING)
   invitedBy String
-  createdAt DateTime          @default(now())
+  createdAt DateTime         @default(now())
   expiresAt DateTime
-  
+
   team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  
+
   @@unique([teamId, email])
   @@index([email, status])
 }
@@ -110,8 +116,8 @@ model Project {
   createdById String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
-  team          Team?             @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  team          Team?               @relation(fields: [teamId], references: [id], onDelete: Cascade)
   tasks         Task[]
   canvas        Canvas?
   markdownFiles MarkdownFile[]
@@ -122,17 +128,17 @@ model Project {
 }
 
 model ProjectInvitation {
-  id        String            @id @default(cuid())
+  id        String           @id @default(cuid())
   projectId String
   email     String
-  role      Role              @default(EDITOR)
-  status    InvitationStatus  @default(PENDING)
+  role      Role             @default(EDITOR)
+  status    InvitationStatus @default(PENDING)
   invitedBy String
-  createdAt DateTime          @default(now())
+  createdAt DateTime         @default(now())
   expiresAt DateTime
-  
+
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  
+
   @@unique([projectId, email])
   @@index([email, status])
 }
@@ -158,11 +164,11 @@ model Task {
   dueDate     DateTime?
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
-  
+
   project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   assignee  User?   @relation("AssignedTasks", fields: [assigneeId], references: [id])
   createdBy User    @relation("CreatedTasks", fields: [createdById], references: [id])
-  
+
   @@index([projectId, status])
 }
 
@@ -183,11 +189,11 @@ enum TaskPriority {
 model Canvas {
   id        String   @id @default(cuid())
   projectId String   @unique
-  state     Json     // Stores canvas objects and state
+  state     Json // Stores canvas objects and state
   version   Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }
 
@@ -199,7 +205,7 @@ model MarkdownFile {
   content   String   @db.Text
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }
 
@@ -207,27 +213,27 @@ model MarkdownFile {
 model Spreadsheet {
   id        String   @id @default(cuid())
   projectId String   @unique
-  data      Json     // Stores cell data and formulas
+  data      Json // Stores cell data and formulas
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }
 
 // GitHub Integration
 model GitRepository {
-  id              String   @id @default(cuid())
-  projectId       String   @unique
-  githubRepoId    String
-  owner           String
-  name            String
-  fullName        String
-  accessToken     String   @db.Text // Encrypted
-  lastSyncedAt    DateTime?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
-  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  id           String    @id @default(cuid())
+  projectId    String    @unique
+  githubRepoId String
+  owner        String
+  name         String
+  fullName     String
+  accessToken  String    @db.Text // Encrypted
+  lastSyncedAt DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  project Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
   commits GitCommit[]
 }
 
@@ -241,9 +247,9 @@ model GitCommit {
   committedAt  DateTime
   url          String
   createdAt    DateTime @default(now())
-  
+
   repository GitRepository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
-  
+
   @@unique([repositoryId, sha])
 }
 
@@ -252,11 +258,11 @@ model AIMessage {
   id        String   @id @default(cuid())
   userId    String
   projectId String?
-  role      String   // 'user' or 'assistant'
+  role      String // 'user' or 'assistant'
   content   String   @db.Text
-  context   Json?    // Additional context data
+  context   Json? // Additional context data
   createdAt DateTime @default(now())
-  
+
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
@@ -267,9 +273,9 @@ model Activity {
   type      ActivityType
   data      Json
   createdAt DateTime     @default(now())
-  
+
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  
+
   @@index([projectId, createdAt])
 }
 

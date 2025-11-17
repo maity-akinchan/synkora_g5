@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
@@ -54,6 +54,25 @@ function getInitials(name: string | null | undefined, email: string | undefined)
 export function TopBar({ user, onMenuClick, showSearch = true }: TopBarProps) {
     const router = useRouter();
     const [searchQuery, setSearchQuery] = useState("");
+    const [defaultTeamName, setDefaultTeamName] = useState<string | null>(null);
+
+    useEffect(() => {
+        let mounted = true;
+        (async () => {
+            try {
+                const res = await fetch("/api/account/default-team");
+                if (!mounted) return;
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data?.defaultTeam?.name) setDefaultTeamName(data.defaultTeam.name);
+                }
+            } catch (err) {
+                // fail silently
+            }
+        })();
+
+        return () => { mounted = false; };
+    }, []);
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
@@ -104,6 +123,12 @@ export function TopBar({ user, onMenuClick, showSearch = true }: TopBarProps) {
                     <InvitationNotificationBadge />
 
                     {/* User Menu */}
+                    {defaultTeamName && (
+                        <div className="hidden md:block mr-2">
+                            <Badge className="capitalize">{defaultTeamName}</Badge>
+                        </div>
+                    )}
+
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="ghost" className="h-9 w-9 rounded-full p-0">
@@ -134,6 +159,10 @@ export function TopBar({ user, onMenuClick, showSearch = true }: TopBarProps) {
                             <DropdownMenuItem onClick={() => router.push("/settings")}>
                                 <Settings className="mr-2 h-4 w-4" />
                                 Settings
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => router.push("/account")}>
+                                <User className="mr-2 h-4 w-4" />
+                                Manage Default Team
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem

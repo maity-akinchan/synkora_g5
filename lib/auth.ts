@@ -4,6 +4,7 @@ import GoogleProvider from "next-auth/providers/google";
 import GitHubProvider from "next-auth/providers/github";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from "./prisma";
+import { ensureDefaultTeam } from "@/lib/auth-utils";
 import bcrypt from "bcryptjs";
 
 export const authOptions: NextAuthOptions = {
@@ -73,10 +74,36 @@ export const authOptions: NextAuthOptions = {
         async jwt({ token, user, account }) {
             if (user) {
                 token.id = user.id;
+                try {
+                    // Ensure the user has a default personal team on sign-in
+                    await ensureDefaultTeam(user.id as string);
+                } catch (err) {
+                    console.error("Failed ensuring default team during jwt callback:", err);
+                }
             }
-            // Store GitHub access token in JWT for later use
+            // Store GitHub access token in JWT during initial sign-in
             if (account?.provider === "github" && account?.access_token) {
                 token.githubAccessToken = account.access_token;
+            }
+            // If token doesn't have githubAccessToken, try to fetch it from database
+            if (!token.githubAccessToken && token.id) {
+                try {
+                    const githubAccount = await prisma.account.findFirst({
+                        where: {
+                            userId: token.id as string,
+                            provider: "github",
+                        },
+                        select: {
+                            access_token: true,
+                        },
+                    });
+
+                    if (githubAccount?.access_token) {
+                        token.githubAccessToken = githubAccount.access_token;
+                    }
+                } catch (error) {
+                    console.error("Error fetching GitHub access token:", error);
+                }
             }
             return token;
         },

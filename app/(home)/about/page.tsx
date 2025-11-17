@@ -11,8 +11,8 @@ export const metadata: Metadata = {
 export default function About() {
 	return (
 		<main className="relative min-h-screen overflow-hidden bg-background text-foreground">
+			<Navigation />
 			<div className="relative z-10 flex min-h-screen flex-col">
-				<Navigation />
 				<AboutContent />
 				<Footer />
 			</div>

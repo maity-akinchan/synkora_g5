@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { ensureDefaultTeam } from "@/lib/auth-utils";
 import { z } from "zod";
 
 const createProjectSchema = z.object({
@@ -21,53 +22,43 @@ export async function GET(request: NextRequest) {
                 { status: 401 }
             );
         }
+        // If user has a default team set, show only projects under that team
+        const user = await prisma.user.findUnique({ where: { id: session.user.id }, select: { defaultTeamId: true } });
 
-        // Get all teams the user is a member of
-        const teamMemberships = await prisma.teamMember.findMany({
-            where: {
-                userId: session.user.id,
-            },
-            select: {
-                teamId: true,
-            },
-        });
-
-        const teamIds = teamMemberships.map((tm: { teamId: string }) => tm.teamId);
-
-        // Get all projects from those teams AND personal projects created by the user
-        const projects = await prisma.project.findMany({
-            where: {
-                OR: [
-                    {
-                        teamId: {
-                            in: teamIds,
-                        },
-                    },
-                    {
-                        teamId: null,
-                        createdById: session.user.id,
-                    },
-                ],
-            },
-            include: {
-                team: {
-                    include: {
-                        members: {
-                            select: {
-                                id: true,
+        if (user?.defaultTeamId) {
+            const projects = await prisma.project.findMany({
+                where: { teamId: user.defaultTeamId },
+                include: {
+                    team: {
+                        include: {
+                            members: {
+                                select: { id: true },
                             },
                         },
                     },
+                    _count: { select: { tasks: true } },
                 },
-                _count: {
-                    select: {
-                        tasks: true,
-                    },
-                },
+                orderBy: { updatedAt: "desc" },
+            });
+            return NextResponse.json(projects);
+        }
+
+        // No default team — show projects from all teams the user is a member of and personal projects
+        const teamMemberships = await prisma.teamMember.findMany({ where: { userId: session.user.id }, select: { teamId: true } });
+        const teamIds = teamMemberships.map((tm: { teamId: string }) => tm.teamId);
+
+        const projects = await prisma.project.findMany({
+            where: {
+                OR: [
+                    { teamId: { in: teamIds } },
+                    { teamId: null, createdById: session.user.id },
+                ],
             },
-            orderBy: {
-                updatedAt: "desc",
+            include: {
+                team: { include: { members: { select: { id: true } } } },
+                _count: { select: { tasks: true } },
             },
+            orderBy: { updatedAt: "desc" },
         });
 
         return NextResponse.json(projects);
@@ -96,7 +87,16 @@ export async function POST(request: NextRequest) {
         const validatedData = createProjectSchema.parse(body);
 
         // Normalize empty string to undefined
-        const teamId = validatedData.teamId && validatedData.teamId.trim() !== "" ? validatedData.teamId : undefined;
+        let teamId = validatedData.teamId && validatedData.teamId.trim() !== "" ? validatedData.teamId : undefined;
+
+        // If no teamId provided, ensure the user has a default team and use it
+        if (!teamId) {
+            try {
+                teamId = await ensureDefaultTeam(session.user.id);
+            } catch (err) {
+                console.error("Failed to ensure default team:", err);
+            }
+        }
 
         // If teamId is provided, check if user is a member of the team
         if (teamId) {

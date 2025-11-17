@@ -8,12 +8,16 @@
     "build": "next build",
     "start": "NODE_ENV=production node server.js",
     "lint": "next lint",
-    "db:seed": "tsx prisma/seed.ts"
+    "db:seed": "tsx prisma/seed.ts",
+    "ws": "node websocket-server.js",
+    "ws:dev": "WS_PORT=3001 node websocket-server.js",
+    "dev:split": "concurrently \"npm run dev\" \"npm run ws:dev\""
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@prisma/client": "^6.19.0",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
@@ -38,6 +42,7 @@
     "framer-motion": "^12.23.24",
     "gl-matrix": "^3.4.4",
     "gsap": "^3.13.0",
+    "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.553.0",
     "motion": "^12.23.24",
     "next": "^14.2.33",
@@ -66,6 +71,7 @@
     "@types/bcryptjs": "^2.4.6",
     "@types/gl-matrix": "^2.4.5",
     "autoprefixer": "^10.4.21",
+    "concurrently": "^9.2.1",
     "eslint": "^9.39.1",
     "eslint-config-next": "^16.0.1",
     "postcss": "^8.5.6",

@@ -17,7 +17,7 @@ export default function JacobJonesPage() {
 				<div className="grid md:grid-cols-2 gap-12 items-center">
 					<div className="relative">
 						<Image
-							src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop"
+							src="/images/team/jacob-jones.jpg"
 							alt="Jacob Jones"
 							width={400}
 							height={400}

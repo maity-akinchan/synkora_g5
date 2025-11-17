@@ -55,8 +55,8 @@ export function MarkdownFileList({
     };
 
     return (
-        <div className="w-64 border-r bg-white flex flex-col">
-            <div className="p-4 border-b">
+        <div className="w-64 border-r dark:border-gray-800 bg-white dark:bg-gray-950 flex flex-col">
+            <div className="p-4 border-b dark:border-gray-800">
                 <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
                     <DialogTrigger asChild>
                         <Button className="w-full" size="sm">
@@ -93,7 +93,7 @@ export function MarkdownFileList({
 
             <div className="flex-1 overflow-y-auto">
                 {files.length === 0 ? (
-                    <div className="p-4 text-center text-sm text-slate-500">
+                    <div className="p-4 text-center text-sm text-slate-500 dark:text-slate-400">
                         No documents yet. Create one to get started.
                     </div>
                 ) : (
@@ -103,7 +103,7 @@ export function MarkdownFileList({
                                 key={file.id}
                                 className={`group flex items-center justify-between p-3 rounded-lg cursor-pointer transition-colors ${selectedFileId === file.id
                                         ? "bg-primary/10 text-primary"
-                                        : "hover:bg-slate-100"
+                                    : "hover:bg-slate-100 dark:hover:bg-gray-800"
                                     }`}
                                 onClick={() => onSelectFile(file.id)}
                             >
@@ -113,7 +113,7 @@ export function MarkdownFileList({
                                         <div className="font-medium truncate text-sm">
                                             {file.title}
                                         </div>
-                                        <div className="text-xs text-slate-500">
+                                        <div className="text-xs text-slate-500 dark:text-slate-400">
                                             {formatDistanceToNow(new Date(file.updatedAt), {
                                                 addSuffix: true,
                                             })}

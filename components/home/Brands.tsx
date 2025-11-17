@@ -2,7 +2,7 @@ import LogoLoop from "./LogoLoop";
 
 export default function Brands() {
 	return (
-		<div className="mt-16 w-full">
+		<div className="mt-0 w-full">
 			<div className="relative mx-auto w-full max-w-6xl overflow-hidden">
 				<LogoLoop
 					ariaLabel="Trusted by teams"

@@ -81,15 +81,21 @@ export function ConnectGitHubModal({
                 }),
             });
 
+            const data = await response.json().catch(() => null);
+
             if (!response.ok) {
-                throw new Error("Failed to connect repository");
+                const msg = data?.error || data?.message || "Failed to connect repository";
+                console.error("Connect repo failed:", data);
+                alert(`Failed to connect repository: ${msg}`);
+                return;
             }
 
+            // Success
             onConnected();
             onClose();
         } catch (error) {
             console.error("Error connecting repository:", error);
-            alert("Failed to connect repository. Please try again.");
+            alert("Failed to connect repository. Please try again. See console for details.");
         } finally {
             setConnecting(false);
         }
