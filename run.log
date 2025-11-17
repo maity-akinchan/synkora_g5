@@ -361,3 +361,10 @@ prisma:query INSERT INTO "public"."Spreadsheet" ("id","projectId","data","create
 prisma:error Error in PostgreSQL connection: Error { kind: Closed, cause: None }
 prisma:error Error in PostgreSQL connection: Error { kind: Closed, cause: None }
 prisma:error Error in PostgreSQL connection: Error { kind: Closed, cause: None }
+   Reload env: .env
+ ✓ Compiled in 3.5s (2041 modules)
+ ✓ Compiled in 2.3s (2055 modules)
+ ○ Compiling /api/projects/[id]/spreadsheet ...
+ ✓ Compiled /api/projects/[id]/spreadsheet in 645ms (367 modules)
+ POST /api/projects/cmi1lhcvl0008oma8g07mdp3t/spreadsheet 401 in 1241ms
+ POST /api/projects/cmi1lhcvl0008oma8g07mdp3t/spreadsheet 401 in 81ms
