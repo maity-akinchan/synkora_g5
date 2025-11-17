@@ -4,11 +4,11 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
 
-// Excalidraw state schema - stored within the existing 'state' field
+// Canvas state schema - keep fields optional and validate types without forcing defaults here
 const canvasStateSchema = z.object({
-    elements: z.array(z.any()).optional().default([]),
-    appState: z.record(z.any()).optional().default({}),
-    files: z.record(z.any()).optional().default({}),
+    elements: z.array(z.any()).optional(),
+    appState: z.any().optional(),
+    files: z.any().optional(),
 });
 
 // GET /api/projects/[id]/canvas - Load canvas state
