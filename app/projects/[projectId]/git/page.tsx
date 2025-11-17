@@ -5,8 +5,10 @@ import { useParams } from "next/navigation";
 import { GitActivityFeed } from "@/components/git/git-activity-feed";
 import { ConnectGitHubModal } from "@/components/git/connect-github-modal";
 import { Button } from "@/components/ui/button";
-import { Github, Loader2, Unplug } from "lucide-react";
+import { Github, Loader2, Unplug, MessageCircle, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import RepoAIChat from "@/components/analytics/repo-ai-chat";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
 
 interface GitRepository {
     id: string;
@@ -24,6 +26,7 @@ export default function GitPage() {
     const [loading, setLoading] = useState(true);
     const [showConnectModal, setShowConnectModal] = useState(false);
     const [disconnecting, setDisconnecting] = useState(false);
+    const [showChat, setShowChat] = useState(false);
 
     const fetchGitRepo = async () => {
         try {
@@ -168,6 +171,40 @@ export default function GitPage() {
                     setShowConnectModal(false);
                 }}
             />
+
+            {/* Floating AI Chat */}
+            <div className="fixed right-6 bottom-6 z-50">
+                {showChat ? (
+                    <Card className="w-96 h-96 shadow-lg overflow-hidden flex flex-col">
+                        <CardHeader className="flex items-center justify-between px-3 py-2 border-b">
+                            <div className="flex items-center gap-2">
+                                <MessageCircle className="w-5 h-5" />
+                                <span className="font-medium">AI Assistant</span>
+                            </div>
+                            <button
+                                aria-label="Close AI chat"
+                                className="p-1 rounded hover:bg-accent/50"
+                                onClick={() => setShowChat(false)}
+                            >
+                                <X className="w-4 h-4" />
+                            </button>
+                        </CardHeader>
+                        <CardContent className="p-0 flex-1 overflow-auto">
+                            <div className="h-full">
+                                <RepoAIChat />
+                            </div>
+                        </CardContent>
+                    </Card>
+                ) : (
+                    <button
+                        aria-label="Open AI assistant"
+                        className="w-12 h-12 rounded-full bg-gradient-to-br from-lime-400 to-green-500 text-gray-900 flex items-center justify-center shadow-lg dark:neon-glow"
+                        onClick={() => setShowChat(true)}
+                    >
+                        <MessageCircle className="w-5 h-5" />
+                    </button>
+                )}
+            </div>
         </div>
     );
 }

@@ -1,0 +1,15 @@
+name = "synkora-ws"
+main = "workers/websocket-server/index.js"
+compatibility_date = "2025-11-17"
+type = "javascript"
+workers_dev = true
+
+# Replace with your Cloudflare account id when publishing
+account_id = "b72a896c6e693e4422326bf350a08163/home"
+
+[durable_objects]
+bindings = [ { name = "PROJECT_ROOMS", class_name = "ProjectRoom" } ]
+
+[vars]
+# You should set NEXTAUTH_SECRET and ALLOWED_ORIGINS using `wrangler secret put`
+# NEXTAUTH_SECRET = "..."

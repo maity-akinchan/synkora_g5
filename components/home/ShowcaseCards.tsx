@@ -1,5 +1,7 @@
 export default function ShowcaseCards() {
- 	// return (
+    return null;
+
+    // return (
  		// <div className="mt-16 grid w-full gap-6 md:grid-cols-3">
  		// 	<div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-white/10 via-white/5 to-transparent p-6 shadow-2xl backdrop-blur-md">
  		// 		<div className="flex items-center justify-between text-xs text-white/50">

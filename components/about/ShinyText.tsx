@@ -12,8 +12,8 @@ interface ShinyTextProps {
 
 const ShinyText: React.FC<ShinyTextProps> = ({ text, disabled = false, speed = 5, className = '', style }) => {
   const animationDuration = `${speed}s`;
-  const baseColor = style?.color || '#84cc16';
-  const defaultGradient = style?.backgroundImage || `linear-gradient(120deg, ${baseColor}00 40%, ${baseColor} 50%, ${baseColor}00 60%)`;
+    const baseColor: string = (style?.color as string) || '#84cc16';
+    const defaultGradient: string = (style?.backgroundImage as string) || `linear-gradient(120deg, ${baseColor}00 40%, ${baseColor} 50%, ${baseColor}00 60%)`;
 
   return (
     <div

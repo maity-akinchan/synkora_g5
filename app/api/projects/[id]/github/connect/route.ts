@@ -55,7 +55,7 @@ export async function POST(
         const userRole = member ? member.role : null;
 
         // Only OWNER or EDITOR can connect a GitHub repo
-        if (!member || !["OWNER", "EDITOR"].includes(userRole)) {
+        if (!member || !userRole || !["OWNER", "EDITOR"].includes(userRole)) {
             console.warn(`GitHub connect permission denied: user=${session.user.id} role=${userRole} project=${projectId}`);
             return NextResponse.json(
                 { error: "Insufficient permissions to connect repository", role: userRole || "none" },

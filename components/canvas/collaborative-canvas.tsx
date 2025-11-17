@@ -15,7 +15,6 @@ export function CollaborativeCanvas({ projectId, canvasId }: CollaborativeCanvas
 
     // Flags & timers
     const isLoadingRef = useRef(false);
-    const isSavingRef = useRef(false);
     const isRemoteUpdateRef = useRef(false);
     const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const logIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -46,11 +45,49 @@ export function CollaborativeCanvas({ projectId, canvasId }: CollaborativeCanvas
             observer.disconnect();
         };
     }, []);
+    // --- Load canvas state from backend ---
+    const loadCanvasState = async () => {
+        if (!editor || isLoadingRef.current) return;
+        isLoadingRef.current = true;
+        try {
+            const response = await fetch(`/api/projects/${projectId}/canvas`);
+            if (response.ok) {
+                const data = await response.json();
+                console.log('Loaded canvas state:', data);
+                const hasState = !!(data.state && Object.keys(data.state).length > 0);
+
+                if (hasState) {
+                    try {
+                        // @ts-ignore using internal snapshot API
+                        await editor.store.loadSnapshot(data.state);
+                        // Edge: if snapshot loads but there are no shapes
+                        if (editor.getCurrentPageShapeIds().size === 0) {
+                            seedDefaultSynkora(editor);
+                        }
+                    } catch (err) {
+                        console.warn('Could not load canvas snapshot:', err);
+                        seedDefaultSynkora(editor);
+                    }
+                } else {
+                    // No persisted state — seed default
+                    seedDefaultSynkora(editor);
+                }
+            } else {
+                // Not OK — still seed to keep UX smooth
+                seedDefaultSynkora(editor);
+            }
+        } catch (error) {
+            console.error('Failed to load canvas state:', error);
+            seedDefaultSynkora(editor);
+        } finally {
+            isLoadingRef.current = false;
+        }
+    };
 
     // --- Default seeding helper (uses richText per latest tldraw API) ---
     const seedDefaultSynkora = (e: Editor) => {
         if (!e || defaultSeededRef.current) return;
-        if (e.getCurrentPageShapeIds().length > 0) return;
+        if (e.getCurrentPageShapeIds().size > 0) return;
 
         // Place near the center of the viewport
         const vb = e.getViewportPageBounds();
@@ -91,52 +128,13 @@ export function CollaborativeCanvas({ projectId, canvasId }: CollaborativeCanvas
 
     // --- Load canvas state on mount; seed default if none or empty ---
     useEffect(() => {
-        if (!editor || isLoadingRef.current) return;
-
-        const loadCanvasState = async () => {
-            isLoadingRef.current = true;
-            try {
-                const response = await fetch(`/api/projects/${projectId}/canvas`);
-                if (response.ok) {
-                    const data = await response.json();
-                    const hasState = !!(data.state && Object.keys(data.state).length > 0);
-
-                    if (hasState) {
-                        try {
-                            // @ts-ignore using internal snapshot API
-                            await editor.store.loadSnapshot(data.state);
-                            // Edge: if snapshot loads but there are no shapes
-                            if (editor.getCurrentPageShapeIds().length === 0) {
-                                seedDefaultSynkora(editor);
-                            }
-                        } catch (err) {
-                            console.warn('Could not load canvas snapshot:', err);
-                            seedDefaultSynkora(editor);
-                        }
-                    } else {
-                        // No persisted state — seed default
-                        seedDefaultSynkora(editor);
-                    }
-                } else {
-                    // Not OK — still seed to keep UX smooth
-                    seedDefaultSynkora(editor);
-                }
-            } catch (error) {
-                console.error('Failed to load canvas state:', error);
-                seedDefaultSynkora(editor);
-            } finally {
-                isLoadingRef.current = false;
-            }
-        };
-
         loadCanvasState();
     }, [editor, projectId]);
 
     // --- Debounced save function ---
     const saveCanvasState = useCallback(async () => {
-        if (!editor || isSavingRef.current) return;
+        if (!editor) return;
 
-        isSavingRef.current = true;
         try {
             const allRecords = editor.store.allRecords();
             const snapshot = {
@@ -144,15 +142,52 @@ export function CollaborativeCanvas({ projectId, canvasId }: CollaborativeCanvas
                 schema: editor.store.schema.serialize(),
             };
 
-            await fetch(`/api/projects/${projectId}/canvas`, {
+            // Ensure the snapshot is JSON-serializable. Try direct stringify first.
+            let bodyPayload: string;
+            try {
+                bodyPayload = JSON.stringify({ state: snapshot });
+            } catch (err) {
+                console.warn('Snapshot not directly serializable, attempting structured clone fallback', err);
+                try {
+                    // Try to make a shallow plain object copy of store
+                    const plainStore: Record<string, any> = {};
+                    const allRecords = editor.store.allRecords();
+                    allRecords.forEach((r: any) => {
+                        try {
+                            plainStore[r.id] = JSON.parse(JSON.stringify(r));
+                        } catch (e) {
+                            // Last resort: copy only primitive props
+                            const copy: any = {};
+                            Object.keys(r).forEach((k) => {
+                                const v = (r as any)[k];
+                                if (v === null) copy[k] = null;
+                                else if (['string', 'number', 'boolean'].includes(typeof v)) copy[k] = v;
+                            });
+                            plainStore[r.id] = copy;
+                        }
+                    });
+
+                    const fallback = { store: plainStore, schema: editor.store.schema.serialize() };
+                    bodyPayload = JSON.stringify({ state: fallback });
+                } catch (e2) {
+                    console.error('Failed to produce serializable snapshot for canvas save', e2);
+                    throw e2;
+                }
+            }
+
+            const res = await fetch(`/api/projects/${projectId}/canvas`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ state: snapshot }),
+                body: bodyPayload,
             });
+
+            if (!res.ok) {
+                const text = await res.text().catch(() => '<no body>');
+                console.error('Canvas save failed:', res.status, text);
+                throw new Error(`Failed to persist canvas: ${res.status}`);
+            }
         } catch (error) {
             console.error('Failed to save canvas state:', error);
-        } finally {
-            isSavingRef.current = false;
         }
     }, [editor, projectId]);
 
@@ -200,6 +235,40 @@ export function CollaborativeCanvas({ projectId, canvasId }: CollaborativeCanvas
             }
         };
     }, [editor, socket, isConnected, projectId, saveCanvasState]);
+
+    // --- Save on window blur, visibility change, beforeunload, and editor focus loss ---
+    useEffect(() => {
+        if (!editor) return;
+
+        const saveNow = () => {
+            // clear any pending debounce and save immediately
+            if (saveTimeoutRef.current) {
+                clearTimeout(saveTimeoutRef.current);
+                saveTimeoutRef.current = null;
+            }
+            // fire and don't await
+            void saveCanvasState();
+        };
+
+        const onVisibility = () => {
+            if (document.hidden) saveNow();
+        };
+
+        const onBlur = () => saveNow();
+
+        const container = editor.getContainer();
+        container.addEventListener('focusout', onBlur);
+        window.addEventListener('blur', onBlur);
+        document.addEventListener('visibilitychange', onVisibility);
+        window.addEventListener('beforeunload', saveNow);
+
+        return () => {
+            container.removeEventListener('focusout', onBlur);
+            window.removeEventListener('blur', onBlur);
+            document.removeEventListener('visibilitychange', onVisibility);
+            window.removeEventListener('beforeunload', saveNow);
+        };
+    }, [editor, saveCanvasState]);
 
     // --- Handle incoming canvas updates from other users ---
     useEffect(() => {
@@ -317,9 +386,9 @@ export function CollaborativeCanvas({ projectId, canvasId }: CollaborativeCanvas
     }, [editor]);
 
     return (
-        <div className={`w-full h-full ${tldrawTheme === 'dark' ? 'bg-neutral-900' : 'bg-white'}`}>
+        <div className={`relative w-full h-full ${tldrawTheme === 'dark' ? 'bg-neutral-900' : 'bg-white'}`}>
             <Tldraw
-                theme={tldrawTheme}
+                licenseKey='tldraw-2026-02-25/WyJDd1FjTzVOWiIsWyIqIl0sMTYsIjIwMjYtMDItMjUiXQ.6SjAGtDmbrZj+mebgzhmbiRN715/aKs0UbEV6KdpgzimEELQQQaQhB4ashVhZ0DxtL2MVfijw6wi5U60u3zQ2A'
                 onMount={(ed) => setEditor(ed)}
             />
         </div>

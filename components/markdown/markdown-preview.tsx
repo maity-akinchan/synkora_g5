@@ -9,8 +9,8 @@ interface MarkdownPreviewProps {
 
 export function MarkdownPreview({ content }: MarkdownPreviewProps) {
     return (
-        <div className="h-full overflow-y-auto p-4 bg-white">
-            <div className="prose prose-slate max-w-none">
+        <div className="h-full overflow-y-auto p-4 bg-white dark:bg-gray-900">
+            <div className="prose prose-slate dark:prose-invert max-w-none">
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>
                     {content || "*No content to preview*"}
                 </ReactMarkdown>

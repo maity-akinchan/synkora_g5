@@ -4,8 +4,11 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
 
+// Excalidraw state schema - stored within the existing 'state' field
 const canvasStateSchema = z.object({
-    state: z.any(), // TLDraw snapshot can be any JSON structure
+    elements: z.array(z.any()).optional().default([]),
+    appState: z.record(z.any()).optional().default({}),
+    files: z.record(z.any()).optional().default({}),
 });
 
 // GET /api/projects/[id]/canvas - Load canvas state
@@ -53,16 +56,23 @@ export async function GET(
         }
 
         // Return canvas state or empty state if not exists
-        if (project.canvas) {
+        if (project.canvas && project.canvas.state) {
+            const state = project.canvas.state as any;
+            
             return NextResponse.json({
                 id: project.canvas.id,
-                state: project.canvas.state,
+                elements: state.elements || [],
+                appState: state.appState || {},
+                files: state.files || {},
                 version: project.canvas.version,
             });
         }
 
+        // Return empty Excalidraw state
         return NextResponse.json({
-            state: null,
+            elements: [],
+            appState: {},
+            files: {},
             version: 0,
         });
     } catch (error) {
@@ -130,20 +140,27 @@ export async function POST(
         const body = await request.json();
         const validatedData = canvasStateSchema.parse(body);
 
+        // Wrap Excalidraw data in the existing 'state' structure
+        const canvasState = {
+            elements: validatedData.elements || [],
+            appState: validatedData.appState || {},
+            files: validatedData.files || {},
+        };
+
         // Update or create canvas
         const canvas = await prisma.canvas.upsert({
             where: {
                 projectId: params.id,
             },
             update: {
-                state: validatedData.state,
+                state: canvasState,
                 version: {
                     increment: 1,
                 },
             },
             create: {
                 projectId: params.id,
-                state: validatedData.state,
+                state: canvasState,
                 version: 1,
             },
         });
