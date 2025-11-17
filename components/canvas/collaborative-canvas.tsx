@@ -388,6 +388,7 @@ export function CollaborativeCanvas({ projectId, canvasId }: CollaborativeCanvas
     return (
         <div className={`relative w-full h-full ${tldrawTheme === 'dark' ? 'bg-neutral-900' : 'bg-white'}`}>
             <Tldraw
+                licenseKey='tldraw-2026-02-25/WyJDd1FjTzVOWiIsWyIqIl0sMTYsIjIwMjYtMDItMjUiXQ.6SjAGtDmbrZj+mebgzhmbiRN715/aKs0UbEV6KdpgzimEELQQQaQhB4ashVhZ0DxtL2MVfijw6wi5U60u3zQ2A'
                 onMount={(ed) => setEditor(ed)}
             />
         </div>
