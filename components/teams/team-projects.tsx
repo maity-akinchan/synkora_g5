@@ -2,7 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
-import { FolderKanban, Calendar } from "lucide-react";
+import { FolderKanban, Calendar, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface Project {
     id: string;
@@ -15,9 +16,10 @@ interface Project {
 interface TeamProjectsProps {
     teamId: string;
     projects: Project[];
+    onProjectDeleted: (projectId: string) => void;
 }
 
-export function TeamProjects({ teamId, projects }: TeamProjectsProps) {
+export function TeamProjects({ teamId, projects, onProjectDeleted }: TeamProjectsProps) {
     const router = useRouter();
 
     const formatDate = (dateString: string) => {
@@ -46,7 +48,7 @@ export function TeamProjects({ teamId, projects }: TeamProjectsProps) {
             {projects.map((project) => (
                 <Card
                     key={project.id}
-                    className="p-6 hover:shadow-lg transition-shadow cursor-pointer"
+                    className="p-6 hover:shadow-lg transition-shadow cursor-pointer relative"
                     onClick={() => router.push(`/dashboard?project=${project.id}`)}
                 >
                     <div className="flex items-start gap-3 mb-3">
@@ -67,6 +69,20 @@ export function TeamProjects({ teamId, projects }: TeamProjectsProps) {
                         <Calendar className="w-3 h-3" />
                         <span>Updated {formatDate(project.updatedAt)}</span>
                     </div>
+                     <Button
+                        size="sm"
+                        variant="destructive"
+                        className="absolute top-4 right-4"
+                        onClick={(e) => {
+                            e.stopPropagation(); // Prevent card click
+                            if (confirm(`Are you sure you want to delete project "${project.name}"?`)) {
+                                onProjectDeleted(project.id);
+                            }
+                        }}
+                    >
+                        <Trash2 className="w-4 h-4 mr-1" />
+                        Delete
+                    </Button>
                 </Card>
             ))}
         </div>

@@ -66,6 +66,6 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts"
-  ],
+, "components/sett/page.tsx"  ],
   "exclude": ["node_modules"]
 }

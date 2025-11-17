@@ -95,6 +95,23 @@ export default function TeamDetailPage() {
         router.push("/teams");
     };
 
+
+    const handleProjectDeleted = async (projectId: string) => {
+        try {
+            const response = await fetch(`/api/projects/${projectId}`, {
+                method: "DELETE",
+            });
+
+            if (response.ok) {
+                fetchTeam(); // Refresh team data after deletion
+            } else {
+                console.error("Failed to delete project");
+            }
+        } catch (error) {
+            console.error("Error deleting project:", error);
+        }
+    };
+
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-screen">
@@ -132,6 +149,13 @@ export default function TeamDetailPage() {
                         <Button onClick={() => setShowInviteModal(true)}>
                             <UserPlus className="w-4 h-4 mr-2" />
                             Invite Member
+                        </Button>
+                    )}
+
+                      {isOwner && (
+                        <Button onClick={() => setShowInviteModal(true)}>
+                            <UserPlus className="w-4 h-4 mr-2" />
+                            Delete Project
                         </Button>
                     )}
                 </div>
@@ -177,6 +201,7 @@ export default function TeamDetailPage() {
                 <TeamProjects
                     teamId={team.id}
                     projects={team.projects}
+                    onProjectDeleted={handleProjectDeleted} 
                 />
             )}
 
