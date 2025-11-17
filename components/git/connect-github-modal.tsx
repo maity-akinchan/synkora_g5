@@ -45,7 +45,13 @@ export function ConnectGitHubModal({
 
             if (!response.ok) {
                 if (response.status === 403) {
-                    alert("Please sign in with GitHub to connect a repository.");
+                    alert("Please connect your GitHub account or sign in with GitHub to access repositories.");
+                    return;
+                }
+                if (response.status === 401) {
+                    // Not signed in
+                    alert("Not signed in. Please sign in with GitHub to continue.");
+                    window.location.href = "/api/auth/signin/github";
                     return;
                 }
                 throw new Error("Failed to fetch repositories");
@@ -126,9 +132,15 @@ export function ConnectGitHubModal({
                         <p className="text-muted-foreground mb-4">
                             You need to sign in with GitHub to connect a repository.
                         </p>
-                        <Button onClick={() => window.location.href = "/api/auth/signin"}>
-                            Sign in with GitHub
-                        </Button>
+                        <div className="flex items-center justify-center gap-2">
+                            <Button onClick={() => window.location.href = "/api/auth/signin/github"}>
+                                Sign in with GitHub
+                            </Button>
+                            <Button variant="outline" onClick={() => window.location.href = "/account"}>
+                                Manage Connections
+                            </Button>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-3">If you've already connected GitHub, try refreshing the modal or reconnecting from Account Settings.</p>
                     </div>
                 ) : (
                     <>

@@ -62,10 +62,19 @@ export async function GET(request: NextRequest) {
 
         if (!githubAccessToken) {
             console.log("[GitHub Repositories API] No GitHub access token found for user:", session.user.id);
+            // Provide more diagnostic info to help debug missing tokens
+            const accountRecord = await prisma.account.findFirst({
+                where: { userId: session.user.id, provider: "github" },
+                select: { id: true, access_token: true, expires_at: true },
+            });
+
+            console.log("[GitHub Repositories API] DB account lookup:", { accountFound: !!accountRecord, account: accountRecord ? { hasAccessToken: !!accountRecord.access_token, expires_at: accountRecord.expires_at } : null });
+
             return NextResponse.json(
                 {
                     error: "GitHub account not connected. Please sign in with GitHub to access repositories.",
                     needsReconnect: true,
+                    accountExists: !!accountRecord,
                 },
                 { status: 403 }
             );

@@ -44,6 +44,8 @@ export function GitActivityFeed({ projectId, onExplainCommit }: GitActivityFeedP
     const [pullRequests, setPullRequests] = useState<GitPullRequest[]>([]);
     const [loading, setLoading] = useState(true);
     const [syncing, setSyncing] = useState(false);
+    const [needsReconnect, setNeedsReconnect] = useState(false);
+    const [apiErrorMessage, setApiErrorMessage] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState("");
     const [activeTab, setActiveTab] = useState<"commits" | "branches" | "pulls">("commits");
     const [page, setPage] = useState(1);
@@ -62,11 +64,20 @@ export function GitActivityFeed({ projectId, onExplainCommit }: GitActivityFeedP
                 `/api/projects/${projectId}/github/stored-commits?${params}`
             );
 
+            const data = await response.json();
             if (!response.ok) {
-                throw new Error("Failed to fetch commits");
+                // If API indicates GitHub auth is invalid, surface reconnect
+                if (data?.needsReconnect) {
+                    setNeedsReconnect(true);
+                    setApiErrorMessage(data?.error || "GitHub authentication required");
+                    setCommits([]);
+                    setHasMore(false);
+                    return;
+                }
+
+                throw new Error(data?.error || "Failed to fetch commits");
             }
 
-            const data = await response.json();
             setCommits(data.commits);
             setHasMore(data.pagination.hasMore);
         } catch (error) {
@@ -123,11 +134,17 @@ export function GitActivityFeed({ projectId, onExplainCommit }: GitActivityFeedP
                 method: "POST",
             });
 
+            const data = await response.json();
             if (!response.ok) {
-                throw new Error("Failed to sync repository");
+                if (data?.needsReconnect) {
+                    setNeedsReconnect(true);
+                    setApiErrorMessage(data?.error || "GitHub authentication required");
+                    return;
+                }
+
+                throw new Error(data?.error || "Failed to sync repository");
             }
 
-            const data = await response.json();
             console.log(`Synced ${data.newCommitsCount} new commits`);
 
             // Refresh commits after sync
@@ -159,6 +176,30 @@ export function GitActivityFeed({ projectId, onExplainCommit }: GitActivityFeedP
 
     return (
         <div className="space-y-4">
+            {needsReconnect && (
+                <div className="p-3 rounded-md bg-yellow-50 border border-yellow-200 text-yellow-800 flex items-center justify-between">
+                    <div>
+                        <div className="font-medium">GitHub connection required</div>
+                        <div className="text-sm">{apiErrorMessage || "Please reconnect your GitHub account."}</div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <Button
+                            variant="default"
+                            size="sm"
+                            onClick={() => (window.location.href = "/api/auth/signin/github")}
+                        >
+                            Reconnect GitHub
+                        </Button>
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => (window.location.href = "/account")}
+                        >
+                            Manage Connections
+                        </Button>
+                    </div>
+                </div>
+            )}
             {/* Header with tabs and actions */}
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">

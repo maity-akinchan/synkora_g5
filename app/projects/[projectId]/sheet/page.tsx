@@ -511,7 +511,7 @@ export default function SpreadsheetPage() {
 
                 /* Spreadsheet Dark Mode Overrides */
                 .dark .Spreadsheet {
-                    color: #f9fafb;
+                    color: #53a7fcff;
                 }
 
                 .dark .Spreadsheet__cell {

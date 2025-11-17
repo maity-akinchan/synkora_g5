@@ -375,3 +375,63 @@ prisma:error Error in PostgreSQL connection: Error { kind: Closed, cause: None }
  POST /api/projects/cmi1lhcvl0008oma8g07mdp3t/spreadsheet 401 in 90ms
  POST /api/projects/cmi1lhcvl0008oma8g07mdp3t/spreadsheet 401 in 79ms
  ✓ Compiled in 2.3s (1881 modules)
+ ✓ Compiled in 1091ms (1881 modules)
+ ✓ Compiled in 1147ms (1881 modules)
+ ✓ Compiled in 1124ms (1881 modules)
+ ✓ Compiled in 879ms (1881 modules)
+ ✓ Compiled in 812ms (1881 modules)
+ ✓ Compiled in 1414ms (1881 modules)
+ ✓ Compiled in 1449ms (1881 modules)
+ POST /api/projects/cmi1lhcvl0008oma8g07mdp3t/spreadsheet 401 in 207ms
+ POST /api/projects/cmi1lhcvl0008oma8g07mdp3t/spreadsheet 401 in 67ms
+ POST /api/projects/cmi1lhcvl0008oma8g07mdp3t/spreadsheet 401 in 151ms
+ POST /api/projects/cmi1lhcvl0008oma8g07mdp3t/spreadsheet 401 in 52ms
+ POST /api/projects/cmi1lhcvl0008oma8g07mdp3t/spreadsheet 401 in 44ms
+ POST /api/projects/cmi1lhcvl0008oma8g07mdp3t/spreadsheet 401 in 34ms
+ POST /api/projects/cmi1lhcvl0008oma8g07mdp3t/spreadsheet 401 in 67ms
+ POST /api/projects/cmi1lhcvl0008oma8g07mdp3t/spreadsheet 401 in 66ms
+ POST /api/projects/cmi1lhcvl0008oma8g07mdp3t/spreadsheet 401 in 100ms
+ POST /api/projects/cmi1lhcvl0008oma8g07mdp3t/spreadsheet 401 in 81ms
+ ○ Compiling /dashboard ...
+ ✓ Compiled /dashboard in 11.5s (3521 modules)
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 1591ms (3524 modules)
+ POST /api/projects/cmi1lhcvl0008oma8g07mdp3t/spreadsheet 404 in 7361ms
+ POST /api/projects/cmi1lhcvl0008oma8g07mdp3t/spreadsheet 404 in 7304ms
+ ✓ Compiled /api/project-invitations in 408ms (1231 modules)
+ ✓ Compiled (1235 modules)
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 3.9s (3757 modules)
+ GET /api/account/default-team 500 in 5768ms
+ GET /api/project-invitations 404 in 5768ms
+ GET /api/team-invitations 404 in 5767ms
+ GET /api/account/default-team 500 in 79ms
+ GET /api/project-invitations 404 in 126ms
+ GET /api/team-invitations 404 in 125ms
+ GET /dashboard 404 in 74ms
+ GET /dashboard 404 in 37ms
+ GET /dashboard 404 in 40ms
+ GET /dashboard 404 in 35ms
+ GET /dashboard 404 in 34ms
+ GET /dashboard 404 in 38ms
+ GET /dashboard 404 in 32ms
+ GET /dashboard 404 in 45ms
+ GET /dashboard 404 in 33ms
+ GET /dashboard 404 in 35ms
+ GET /dashboard 404 in 34ms
+ GET /dashboard 404 in 38ms
+ GET /dashboard 404 in 39ms
+ ○ Compiling / ...
+ ✓ Compiled / in 3.7s (4002 modules)
+ GET / 200 in 4643ms
+ GET /dashboard 200 in 3557ms
+ GET / 200 in 121ms
+ GET /_next/static/css/app/layout.css?v=1763351698926 404 in 96ms
+ GET /_next/static/chunks/main-app.js?v=1763351698926 404 in 28ms
+ GET /_next/static/chunks/app-pages-internals.js 404 in 32ms
+ GET /_next/static/chunks/app/layout.js 404 in 26ms
+ GET / 200 in 127ms
+ GET /_next/static/css/app/layout.css?v=1763351706429 404 in 58ms
+ GET /_next/static/chunks/main-app.js?v=1763351706429 404 in 53ms
+ GET /_next/static/chunks/app-pages-internals.js 404 in 52ms
+ GET /_next/static/chunks/app/layout.js 404 in 53ms

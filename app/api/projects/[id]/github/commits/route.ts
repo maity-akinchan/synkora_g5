@@ -62,23 +62,39 @@ export async function GET(
 
         // Create GitHub client and fetch commits
         const githubClient = new GitHubClient(accessToken);
-        const result = await githubClient.getCommits(
-            project.gitRepo.owner,
-            project.gitRepo.name,
-            {
+        try {
+            const result = await githubClient.getCommits(
+                project.gitRepo.owner,
+                project.gitRepo.name,
+                {
+                    page,
+                    perPage,
+                    since: since ? new Date(since) : undefined,
+                    until: until ? new Date(until) : undefined,
+                }
+            );
+
+            return NextResponse.json({
+                commits: result.commits,
+                hasMore: result.hasMore,
                 page,
                 perPage,
-                since: since ? new Date(since) : undefined,
-                until: until ? new Date(until) : undefined,
+            });
+        } catch (error) {
+            console.error("Error fetching commits from GitHub:", error);
+            const status = (error as any)?.status || (error as any)?.response?.status;
+            if (status === 401 || status === 403) {
+                return NextResponse.json(
+                    { error: "GitHub authentication failed", needsReconnect: true },
+                    { status: 401 }
+                );
             }
-        );
 
-        return NextResponse.json({
-            commits: result.commits,
-            hasMore: result.hasMore,
-            page,
-            perPage,
-        });
+            return NextResponse.json(
+                { error: "Failed to fetch commits" },
+                { status: 500 }
+            );
+        }
     } catch (error) {
         console.error("Error fetching commits:", error);
         return NextResponse.json(

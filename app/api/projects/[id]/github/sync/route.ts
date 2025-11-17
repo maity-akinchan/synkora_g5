@@ -66,6 +66,16 @@ export async function POST(
                 message: `Synced ${result.newCommitsCount} new commits`,
             });
         } else {
+            // If the underlying error is an Octokit auth error, surface a clear 401
+            const err = result.error as any;
+            const status = err?.status || err?.response?.status;
+            if (status === 401 || status === 403) {
+                return NextResponse.json(
+                    { error: "GitHub authentication failed", needsReconnect: true },
+                    { status: 401 }
+                );
+            }
+
             return NextResponse.json(
                 { error: "Sync failed", details: result.error },
                 { status: 500 }

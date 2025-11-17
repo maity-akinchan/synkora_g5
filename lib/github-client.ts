@@ -72,7 +72,8 @@ export class GitHubClient {
             return { commits, hasMore };
         } catch (error) {
             console.error("Error fetching commits:", error);
-            throw new Error("Failed to fetch commits from GitHub");
+            // Rethrow original error so callers can inspect status/response
+            throw error;
         }
     }
 
@@ -103,7 +104,7 @@ export class GitHubClient {
             return { branches, hasMore };
         } catch (error) {
             console.error("Error fetching branches:", error);
-            throw new Error("Failed to fetch branches from GitHub");
+            throw error;
         }
     }
 
@@ -143,7 +144,7 @@ export class GitHubClient {
             return { pullRequests, hasMore };
         } catch (error) {
             console.error("Error fetching pull requests:", error);
-            throw new Error("Failed to fetch pull requests from GitHub");
+            throw error;
         }
     }
 
@@ -164,7 +165,7 @@ export class GitHubClient {
             };
         } catch (error) {
             console.error("Error fetching repository:", error);
-            throw new Error("Failed to fetch repository from GitHub");
+            throw error;
         }
     }
 
@@ -196,7 +197,7 @@ export class GitHubClient {
             return { repositories, hasMore };
         } catch (error) {
             console.error("Error fetching user repositories:", error);
-            throw new Error("Failed to fetch repositories from GitHub");
+            throw error;
         }
     }
 }
