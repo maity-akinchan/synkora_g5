@@ -14,6 +14,7 @@ import { Plus, Filter, Wifi, WifiOff } from "lucide-react";
 import { useRealtimeKanban } from "@/hooks/use-realtime-kanban";
 import { Toaster } from "@/components/ui/toaster"; // This import is now used
 import { toast } from "sonner"; // --- FIX 1: Import the toast function from sonner ---
+import { ProjectAIAssistant } from "@/components/chatbot/project-ai-assistant";
 
 export default function KanbanPage() {
     const params = useParams();
@@ -31,6 +32,7 @@ export default function KanbanPage() {
     const [filterAssignee, setFilterAssignee] = useState<string>("all");
     const [filterPriority, setFilterPriority] = useState<string>("all");
     const [sortBy, setSortBy] = useState<string>("position");
+    const [projectName, setProjectName] = useState<string>("");
 
     // Real-time handlers
     const handleRealtimeTaskCreate = useCallback((task: Task) => {
@@ -92,6 +94,7 @@ export default function KanbanPage() {
                 const project = await response.json();
                 const members = project.team?.members?.map((m: any) => m.user) || [];
                 setTeamMembers(members);
+                setProjectName(project.name || "Project");
             }
         } catch (error) {
             console.error("Failed to fetch team members:", error);
@@ -379,6 +382,9 @@ export default function KanbanPage() {
                 task={selectedTask}
                 onEdit={handleEditClick}
             />
+
+            {/* AI Assistant */}
+            <ProjectAIAssistant projectId={projectId} projectName={projectName} />
         </div>
     );
 }
