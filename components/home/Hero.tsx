@@ -54,32 +54,53 @@ export default function Hero() {
 							<div className="mt-16 flex items-center justify-center gap-4">
 
   {/* LOGIN BUTTON */}
-  <Button
-    variant="outline"
-    className="
-      neon-outline 
-      goblin-one 
-      h-12 rounded-full px-8 text-sm tracking-wide
-      bg-neutral-900/60 border-neutral-800 text-white
-      hover:border-lime-300 transition-all
-    "
-  >
-    <Link href="/login">LOGIN</Link>
-  </Button>
+  <div className="relative group p-[3px] rounded-[0.9em] transition-all duration-[400ms] ease-in-out">
+    <div className="absolute inset-0 bg-gradient-to-r from-[#84cc16] to-[#22c55e] rounded-[0.9em] opacity-0 group-hover:opacity-100 blur-[1.2em] transition-all duration-[400ms] ease-in-out group-active:blur-[0.2em] -z-10" />
+    <Button
+      variant="outline"
+      className="
+        relative
+        h-12 rounded-[0.5em] px-8 text-sm tracking-wide
+        bg-black text-white border-none
+        shadow-[2px_2px_3px_rgba(0,0,0,0.71)]
+        hover:shadow-[2px_2px_3px_rgba(0,0,0,0.71)]
+        transition-all duration-200
+        cursor-pointer
+      "
+    >
+      <Link href="/login" className="pointer-events-auto">LOGIN</Link>
+    </Button>
+  </div>
 
   {/* SIGN UP BUTTON */}
   <Button
     size="lg"
     className="
-      neon-solid 
-      goblin-one
-      h-12 rounded-full px-8 text-sm font-semibold text-black
-      bg-lime-300 hover:bg-lime-200 transition-transform 
-      shadow-[0_0_0_6px_rgba(180,255,20,0.16),0_0_50px_rgba(180,255,20,0.3)]
+      group
+      relative
+      h-12 rounded-full px-5 py-2.5 text-sm font-bold text-black
+      bg-[#cfef00] hover:bg-[#c4e201]
+      border border-transparent
+      flex items-center gap-2.5
+      transition-all duration-200
+      cursor-pointer
+      active:scale-95
     "
   >
-    <Link href="/register">Sign up</Link>
-    <ArrowRight className="ml-2 h-4 w-4 arrow-move" />
+    <Link href="/register" className="pointer-events-auto flex items-center gap-2.5">
+      <span>Sign up</span>
+      <svg 
+        xmlns="http://www.w3.org/2000/svg" 
+        fill="none" 
+        viewBox="0 0 74 74" 
+        height={34} 
+        width={34}
+        className="w-[34px] h-[34px] ml-2.5 transition-transform duration-300 ease-in-out group-hover:translate-x-[5px]"
+      >
+        <circle strokeWidth={3} stroke="black" r="35.5" cy={37} cx={37} />
+        <path fill="black" d="M25 35.5C24.1716 35.5 23.5 36.1716 23.5 37C23.5 37.8284 24.1716 38.5 25 38.5V35.5ZM49.0607 38.0607C49.6464 37.4749 49.6464 36.5251 49.0607 35.9393L39.5147 26.3934C38.9289 25.8076 37.9792 25.8076 37.3934 26.3934C36.8076 26.9792 36.8076 27.9289 37.3934 28.5147L45.8787 37L37.3934 45.4853C36.8076 46.0711 36.8076 47.0208 37.3934 47.6066C37.9792 48.1924 38.9289 48.1924 39.5147 47.6066L49.0607 38.0607ZM25 38.5L48 38.5V35.5L25 35.5V38.5Z" />
+      </svg>
+    </Link>
   </Button>
 
 </div>

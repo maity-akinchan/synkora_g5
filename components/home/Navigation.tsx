@@ -11,13 +11,22 @@ interface NavigationProps {
 
 export const Navigation = ({ className }: NavigationProps) => {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isPastHowItWorks, setIsPastHowItWorks] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
+      
+      // Check if scrolled past "how-it-works" section
+      const howItWorksSection = document.getElementById("how-it-works");
+      if (howItWorksSection) {
+        const rect = howItWorksSection.getBoundingClientRect();
+        setIsPastHowItWorks(rect.top < 100);
+      }
     };
 
     window.addEventListener("scroll", handleScroll);
+    handleScroll(); // Check on mount
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
@@ -26,10 +35,14 @@ export const Navigation = ({ className }: NavigationProps) => {
       <nav
         className={cn(
           "mx-auto max-w-7xl w-full pointer-events-auto",
-          "bg-[#1a1a1a]/90 backdrop-blur-xl backdrop-saturate-150",
+          "backdrop-blur-xl backdrop-saturate-150",
           "border border-white/10 rounded-full shadow-2xl",
           "transition-all duration-300",
-          isScrolled && "bg-[#1a1a1a]/95 shadow-[0_8px_32px_rgba(0,0,0,0.5)]",
+          isPastHowItWorks 
+            ? "bg-[#0a0a0a] shadow-[0_8px_32px_rgba(0,0,0,0.8)]" 
+            : isScrolled 
+              ? "bg-[#1a1a1a]/95 shadow-[0_8px_32px_rgba(0,0,0,0.5)]" 
+              : "bg-[#1a1a1a]/90",
           className
         )}
         style={{
