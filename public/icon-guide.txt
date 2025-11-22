@@ -1,0 +1,25 @@
+PWA Icon Requirements
+=====================
+
+You need to create the following icon files:
+
+1. icon-192x192.png (192x192 pixels)
+2. icon-512x512.png (512x512 pixels)
+
+These should be your Synkora logo with:
+- Transparent or solid background
+- Square format
+- PNG format
+- High quality
+
+Quick ways to create them:
+- Use an online tool like https://realfavicongenerator.net/
+- Use Figma/Photoshop to export at these sizes
+- Use an AI tool to generate a logo
+
+Recommended design:
+- Use the neon green (#22c55e) theme color
+- Simple, recognizable icon
+- Works well at small sizes
+
+Once created, place them in the /public folder and delete this guide file.
