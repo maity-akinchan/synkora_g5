@@ -15,26 +15,26 @@ const teamMembers = [
   {
     image: "/images/team/jacob-jones.jpg",
     link: "/about/team/jacob-jones",
-    title: "Jacob Jones",
-    description: "CEO - Leading Synkora's vision for AI-powered collaboration",
+    title: "Akinchan Maity",
+    description: "Backend Developer",
   },
   {
     image: "/images/team/kristin-watson.jpg",
     link: "/about/team/kristin-watson",
-    title: "Kristin Watson",
-    description: "Marketing - Driving growth and connecting teams worldwide",
+    title: "Angel Sharma",
+    description: "Frontend Developer",
   },
   {
     image: "/images/team/darlene-robertson.jpg",
     link: "/about/team/darlene-robertson",
-    title: "Darlene Robertson",
-    description: "Engineer - Building the future of collaborative workspaces",
+    title: "Akshat Singla",
+    description: "UI/UX Designer",
   },
   {
     image: "/images/team/cameron-williamson.jpg",
     link: "/about/team/cameron-williamson",
-    title: "Cameron Williamson",
-    description: "Designer - Crafting intuitive experiences for modern teams",
+    title: "Arshia Sharma",
+    description: "Backend and Frontend Developer",
   },
 ];
 
@@ -70,7 +70,7 @@ export default function AboutContent() {
 
         <div className="relative z-10 text-center px-8 pt-32 pb-20">
           <TrueFocus
-            sentence="About Us"
+            sentence="Meet Our Team"
             manualMode={false}
             blurAmount={5}
             borderColor="#84cc16"

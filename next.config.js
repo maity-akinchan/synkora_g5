@@ -1,3 +1,10 @@
+const withPWA = require('next-pwa')({
+    dest: 'public',
+    register: true,
+    skipWaiting: true,
+    disable: false, // PWA enabled in all modes
+});
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     images: {
@@ -11,4 +18,4 @@ const nextConfig = {
     transpilePackages: ['tldraw'],
 };
 
-module.exports = nextConfig;
+module.exports = withPWA(nextConfig);
