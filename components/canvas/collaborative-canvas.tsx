@@ -12,7 +12,7 @@ interface CollaborativeCanvasProps {
 export function CollaborativeCanvas({ projectId, canvasId }: CollaborativeCanvasProps) {
     // Use tldraw's built-in sync for real-time collaboration
     const store = useSyncDemo({ roomId: `canvas-${canvasId}` });
-
+    const saveStatus = useState('saved')[0]; // Placeholder for save status, can be 'saving', 'saved', or 'error'
     // Theme detection for tldraw
     const [tldrawTheme, setTldrawTheme] = useState<'light' | 'dark'>('light');
 
